@@ -1,0 +1,16 @@
+dotnet_runtime/
+
+sd_files/mono/framework_net9.0/
+sd_files/mono/lib_net9.0/
+
+*.nacp
+*.elf
+*.nro
+*.lst
+*.map
+*.dat
+*.zip
+*.d
+*.o
+obj/
+bin/

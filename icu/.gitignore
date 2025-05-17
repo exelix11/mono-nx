@@ -1,0 +1,6 @@
+icu/
+host_build/
+nx_build/
+libnx/
+
+*.tgz
