@@ -1,5 +1,20 @@
 #include "dl_shim_base.h"
 
+#ifndef DLSHIM_SDL
+
+#pragma message "SDL2 P/Invoke bindings are disabled"
+void *getsym_SDL2_image(const char *name)
+{
+	return NULL;
+}
+
+void *getsym_sdl2(const char *name)
+{
+	return NULL;
+}
+
+#else
+
 void *getsym_SDL2_image(const char *name)
 {
 	SYM_RESOLVE(IMG_Linked_Version);
@@ -1272,3 +1287,5 @@ void *getsym_sdl2(const char *name)
 	SYM_RESOLVE(SDL_UnloadObject);
 	return NULL;
 }
+
+#endif

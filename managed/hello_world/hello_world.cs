@@ -18,9 +18,6 @@ namespace AotExample
 
 		public static int Main(string[] args)
 		{
-			// For reasons I did not bother to figure out, this is needed in AOT builds.
-			AppContext.SetSwitch("System.Resources.UseSystemResourceKeys", true);
-
 			if (IsSwitch)
 				console_ensure_init();
 

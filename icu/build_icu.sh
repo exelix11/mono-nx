@@ -46,6 +46,5 @@ sh ../icu/source/configure --disable-renaming --disable-shared --enable-static -
 make -j8
 make install
 
-# Copy the data file to the two needed locations
-cp ./libnx/share/icu/77.1/icudt77l.dat ../native/aot/romfs/
+# Copy the data file to the sd card files
 cp ./libnx/share/icu/77.1/icudt77l.dat ../sd_files/mono/etc

@@ -42,8 +42,10 @@ struct AppConfiguration
 
 extern struct AppConfiguration g_config;
 
-bool application_initialize();
+bool application_initialize(const char* configFile);
 void application_terminate();
+
+void application_chdir_to_assembly(const char* path);
 
 void input_ensure_init();
 void console_ensure_init();

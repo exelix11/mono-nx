@@ -45,22 +45,18 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well.
 #---------------------------------------------------------------------------------
-TARGET		:=	mono_nx
+TARGET		:=	aot_example
 BUILD		:=	build
 SOURCES		:=	source \
 				../shared \
 				../shared/third_party \
-				../shared/third_party/ini \
-				../shared/third_party/cimgui \
-				../shared/third_party/cimgui/imgui \
-				../shared/third_party/cimgui/imgui/backends
+				../shared/third_party/ini
 
 DATA		:=	data
 INCLUDES	:=	include \
-				../shared \
-				../shared/third_party/cimgui/imgui 
+				../shared
 
-#ROMFS	:=	romfs
+ROMFS	:=	romfs
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -72,20 +68,19 @@ CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ \
 			-I$(MONO_ROOT)/artifacts/bin/mono/libnx.arm64.Debug/include/mono-2.0 \
+			-I$(MONO_ROOT)/src/mono/ \
 			-I$(ICU_NX_INSTALL_DIR)/include \
-			-I/opt/devkitpro/portlibs/switch/include/SDL2/ \
-			-DIMGUI_USER_CONFIG=\"../cimconfig.h\" \
-			-DIMGUI_IMPL_API="extern \"C\" " \
-			-DU_DISABLE_RENAMING=1 \
-			-DDLSHIM_IMGUI=1 \
-			-DDLSHIM_SDL=1
+			-DU_DISABLE_RENAMING=1 
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=c++17
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
+AOT_FILES := $(wildcard $(TOPDIR)/output/*.o)
+
 LIBS	:=  \
+			$(AOT_FILES) \
 			$(MONO_ROOT)/artifacts/bin/native/net9.0-libnx-Debug-arm64/libSystem.IO.Compression.Native.a \
   			$(MONO_ROOT)/artifacts/bin/native/net9.0-libnx-Debug-arm64/libSystem.Globalization.Native.a \
 			$(MONO_ROOT)/artifacts/bin/native/net9.0-libnx-Debug-arm64/libSystem.Native.a \
@@ -98,7 +93,6 @@ LIBS	:=  \
 			$(MONO_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-hot_reload-stub-static.a \
 			$(MONO_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-marshal-ilgen-static.a \
 			$(MONO_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/_deps/fetchzlibng-build/libz.a \
-			`$(PREFIX)pkg-config --libs sdl2 SDL2_image` \
 			-pthread -lnx -lm -lstdc++
 
 #---------------------------------------------------------------------------------

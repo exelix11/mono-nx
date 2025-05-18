@@ -1,4 +1,5 @@
 #include "core.h"
+#include <unistd.h>
 
 static PadState pad;
 static bool using_console = false;
@@ -221,11 +222,12 @@ static int handle_ini_line(void *user, const char *section, const char *name, co
     return 1;
 }
 
-bool application_initialize()
+bool application_initialize(const char* configFile)
 {
-    if (ini_parse(CONFIG_INI_PATH, handle_ini_line, &g_config) < 0)
+    if (ini_parse(configFile, handle_ini_line, &g_config) < 0)
     {
-        fatal_error("Can't load app config from " CONFIG_INI_PATH);
+        io_debugf("Can't load app config from %s", configFile);
+        fatal_error("Can't load app config");
         return false;
     }
 
@@ -270,7 +272,7 @@ bool application_initialize()
 
     if (!g_config.config_dir || !g_config.assembly_dir || !g_config.icudata_path)
     {
-        fatal_error("Some paths are missing from " CONFIG_INI_PATH);
+        fatal_error("Some paths are missing from the config file");
         return false;
     }
 
@@ -295,4 +297,35 @@ void application_terminate()
     socketExit();
 
     console_dispose();
+}
+
+void application_chdir_to_assembly(const char* path)
+{
+    char* dir = io_strdup(path);
+    int dirlen = strlen(dir);
+    if (dirlen < 2)
+        return;
+
+    bool found = false;
+    for (int i = dirlen - 1; i >= 0; i--)
+    {
+        if (dir[i] == '/')
+        {
+            // Avoid doing "/test" -> ""
+            if (i == 0)
+                dir[1] = '\0';
+            else 
+                dir[i] = '\0';
+            
+            found = true;
+            break;
+        }
+    }
+
+    if (!found)
+        return;
+    
+    io_debugf("chdir(%s)", dir);
+    chdir(dir);
+    free(dir);
 }

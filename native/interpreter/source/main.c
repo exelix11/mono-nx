@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[])
 {
-    if (!application_initialize())
+    if (!application_initialize(CONFIG_INI_PATH))
         return 1;
 
     MonoDomain *domain = NULL;
@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     }
 
     io_debugf("Loading assembly %s", launch_dll);
+    application_chdir_to_assembly(launch_dll);
 
     MonoAssembly *assembly = mono_domain_assembly_open(domain, launch_dll);
     if (!assembly)

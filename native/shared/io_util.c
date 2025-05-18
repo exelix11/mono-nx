@@ -46,9 +46,9 @@ int io_init_libicu(const char* icudata_path, bool log)
     uint8_t *icudt771_dat = NULL;
     size_t icudt771_dat_size = 0;
 
-    if (!io_load_file("/mono/etc/icudt77l.dat", &icudt771_dat, &icudt771_dat_size))
+    if (!io_load_file(icudata_path, &icudt771_dat, &icudt771_dat_size))
     {
-        if (log) io_debugf("Failed to load ICU data file\n");
+        if (log) io_debugf("Failed to load ICU data file from %s\n", icudata_path);
         return 0;
     }
 

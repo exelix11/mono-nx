@@ -11,3 +11,4 @@ mkdir -p icu/libnx
 export ICU_NX_INSTALL_DIR=$(realpath icu/libnx)
 
 export MONO_ROOT=$(realpath .)/dotnet_runtime
+export BUILT_SD_ROOT=$(realpath .)/sd_files/mono
