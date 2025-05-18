@@ -110,6 +110,9 @@ void *MonoDlFallback_Load(const char *name, int flags, char **err, void *user_da
     if (strcmp(name, "SDL2_image") == 0)
         return (void *)LibHandle_SDL2_image;
 
+    if (strcmp(name, "libnx") == 0)
+        return (void *)LibHandle_libnx;
+
     if (logging)
         io_debugf("MonoDlFallback_Load %s library=%s", "unknown library", name);
 
@@ -129,6 +132,8 @@ void *MonoDlFallback_Symbol(void *handle, const char *name, char **err, void *us
         symbol = getsym_sdl2(name);
     else if ((intptr_t)handle == LibHandle_SDL2_image)
         symbol = getsym_SDL2_image(name);
+    else if ((intptr_t)handle == LibHandle_libnx)
+        symbol = getsym_libnx(name);
     else if ((intptr_t)handle == LibHandle_Internal)
     {
         // Custom extensions

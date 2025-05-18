@@ -2,6 +2,9 @@
 
 #include <stdint.h>
 
+#define LibHandle_libnx ((intptr_t)0xAAAAAA11AA)
+void* getsym_libnx(const char *name);
+
 #define LibHandle_SDL2_image ((intptr_t)0xAAAAAAAAFF)
 void* getsym_SDL2_image(const char *name);
 

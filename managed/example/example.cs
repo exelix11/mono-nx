@@ -198,7 +198,7 @@ namespace Example
 		public static void UdpSocketTest()
 		{
 			using var s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-			s.SendTo(Encoding.ASCII.GetBytes("hello UDP sockets"), new IPEndPoint(IPAddress.Parse("192.168.178.66"), 9999));
+			s.SendTo(Encoding.ASCII.GetBytes("hello UDP sockets"), new IPEndPoint(IPAddress.Parse("192.168.2.5"), 9999));
 		}
 
 		public static void TCPHttpTest()
