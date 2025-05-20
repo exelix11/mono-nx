@@ -13,9 +13,9 @@ if [ ! -f $ICU_NX_INSTALL_DIR/lib/libicudata.a ]; then
 fi
 
 if [ ! -d $MONO_ROOT ]; then
-    git clone -b libnx https://github.com/exelix11/dotnet_runtime.git
+    echo "The mono root is missing, did you clone the repo?"
+    exit 1
 fi
-
 
 cd $MONO_ROOT
 

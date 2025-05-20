@@ -15,6 +15,7 @@
 #include <unicode/udata.h>
 #include <unicode/ucnv.h>
 #include <unicode/ulocdata.h>
+#include <unicode/uclean.h>
 
 bool io_load_file(const char *path, uint8_t **out_data, size_t *out_size)
 {
@@ -41,11 +42,11 @@ bool io_load_file(const char *path, uint8_t **out_data, size_t *out_size)
     return true;
 }
 
+static uint8_t *icudt771_dat = NULL;
+static size_t icudt771_dat_size = 0;
+
 int io_init_libicu(const char* icudata_path, bool log)
 {
-    uint8_t *icudt771_dat = NULL;
-    size_t icudt771_dat_size = 0;
-
     if (!io_load_file(icudata_path, &icudt771_dat, &icudt771_dat_size))
     {
         if (log) io_debugf("Failed to load ICU data file from %s\n", icudata_path);
@@ -80,6 +81,19 @@ int io_init_libicu(const char* icudata_path, bool log)
     return 1;
 }
 
+void io_dispose_libicu()
+{
+    u_cleanup();
+
+    // Free the ICU data
+    if (icudt771_dat)
+    {
+        free(icudt771_dat);
+        icudt771_dat = NULL;
+        icudt771_dat_size = 0;
+    }
+}
+
 typedef ssize_t (*newlib_io_write_callback)(struct _reent *r, void *fd, const char *ptr, size_t len);
 
 static bool isCustomRedirect = false;
@@ -101,8 +115,8 @@ static struct sockaddr_in logUdpAddress;
 
 static ssize_t udp_log_write(struct _reent *r, void *fd, const char *ptr, size_t len)
 {
-    if (logUdpSocket < 0)
-        return -1;
+    if (logUdpSocket < 0) // THe socket has been closed, we're probably exiting
+        return len;
 
     if (len == 0)
         return 0;
@@ -163,6 +177,21 @@ int io_stdio_to_svc()
     return 0;
 }
 
+void io_stdio_finish()
+{
+    if (logUdpSocket >= 0)
+    {
+        close(logUdpSocket);
+        logUdpSocket = -1;
+    }
+
+    if (file_log_handle)
+    {
+        fclose(file_log_handle);
+        file_log_handle = NULL;
+    }
+}
+
 int io_stdio_to_udp(const char *host, int port)
 {
     if (logUdpSocket >= 0)
@@ -189,9 +218,11 @@ int io_stdio_to_udp(const char *host, int port)
 
 int io_stdio_to_file(const char* filename)
 {
-    file_log_handle = fopen(filename, "w");
+    file_log_handle = fopen(filename, "a");
     if (!file_log_handle)
         return -1;
+
+    fprintf(file_log_handle, "--- starting log ---\n");
 
     if (redirect_newlib_io(file_log_write) < 0)
     {

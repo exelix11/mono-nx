@@ -284,29 +284,37 @@ static ImGuiKey ImGui_ImplSDL2_KeycodeToImGuiKey(int keycode)
     return ImGuiKey_None;
 }
 
+// Switch key mappings are weird, see https://gist.github.com/minkcv/ccb04c62c287f6bf7c01fcb3d2014474
+
+#if __SWITCH__
+    #define MAP_BUTTON(KEY_NO, UNUSED_BUTTON_NO, LIBNX_KEY)   case LIBNX_KEY: return KEY_NO
+#else
+    #define MAP_BUTTON(KEY_NO, BUTTON_NO, UNUSED_LIBNX_KEY)   case BUTTON_NO: return KEY_NO
+#endif
+
 static ImGuiKey ImGui_ImplSDL2_GamepadKeyToImGuiKey(SDL_GameControllerButton button)
 {
-#define MAP_BUTTON(KEY_NO, BUTTON_NO)   case BUTTON_NO: return KEY_NO
     switch (button)
     {
-        MAP_BUTTON(ImGuiKey_GamepadStart, SDL_CONTROLLER_BUTTON_START);
-        MAP_BUTTON(ImGuiKey_GamepadBack, SDL_CONTROLLER_BUTTON_BACK);
-        MAP_BUTTON(ImGuiKey_GamepadFaceLeft, SDL_CONTROLLER_BUTTON_X);              // Xbox X, PS Square
-        MAP_BUTTON(ImGuiKey_GamepadFaceRight, SDL_CONTROLLER_BUTTON_B);              // Xbox B, PS Circle
-        MAP_BUTTON(ImGuiKey_GamepadFaceUp, SDL_CONTROLLER_BUTTON_Y);              // Xbox Y, PS Triangle
-        MAP_BUTTON(ImGuiKey_GamepadFaceDown, SDL_CONTROLLER_BUTTON_A);              // Xbox A, PS Cross
-        MAP_BUTTON(ImGuiKey_GamepadDpadLeft, SDL_CONTROLLER_BUTTON_DPAD_LEFT);
-        MAP_BUTTON(ImGuiKey_GamepadDpadRight, SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
-        MAP_BUTTON(ImGuiKey_GamepadDpadUp, SDL_CONTROLLER_BUTTON_DPAD_UP);
-        MAP_BUTTON(ImGuiKey_GamepadDpadDown, SDL_CONTROLLER_BUTTON_DPAD_DOWN);
-        MAP_BUTTON(ImGuiKey_GamepadL1, SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
-        MAP_BUTTON(ImGuiKey_GamepadR1, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
-        MAP_BUTTON(ImGuiKey_GamepadL3, SDL_CONTROLLER_BUTTON_LEFTSTICK);
-        MAP_BUTTON(ImGuiKey_GamepadR3, SDL_CONTROLLER_BUTTON_RIGHTSTICK);
+        MAP_BUTTON(ImGuiKey_GamepadStart, SDL_CONTROLLER_BUTTON_START, 10);
+        MAP_BUTTON(ImGuiKey_GamepadBack, SDL_CONTROLLER_BUTTON_BACK, 11);
+        MAP_BUTTON(ImGuiKey_GamepadFaceLeft, SDL_CONTROLLER_BUTTON_X, 2);              // Xbox X, PS Square
+        MAP_BUTTON(ImGuiKey_GamepadFaceRight, SDL_CONTROLLER_BUTTON_B, 1);              // Xbox B, PS Circle
+        MAP_BUTTON(ImGuiKey_GamepadFaceUp, SDL_CONTROLLER_BUTTON_Y, 3);              // Xbox Y, PS Triangle
+        MAP_BUTTON(ImGuiKey_GamepadFaceDown, SDL_CONTROLLER_BUTTON_A, 0);              // Xbox A, PS Cross
+        MAP_BUTTON(ImGuiKey_GamepadDpadLeft, SDL_CONTROLLER_BUTTON_DPAD_LEFT, 12);
+        MAP_BUTTON(ImGuiKey_GamepadDpadRight, SDL_CONTROLLER_BUTTON_DPAD_RIGHT, 14);
+        MAP_BUTTON(ImGuiKey_GamepadDpadUp, SDL_CONTROLLER_BUTTON_DPAD_UP, 13);
+        MAP_BUTTON(ImGuiKey_GamepadDpadDown, SDL_CONTROLLER_BUTTON_DPAD_DOWN, 15);
+        MAP_BUTTON(ImGuiKey_GamepadL1, SDL_CONTROLLER_BUTTON_LEFTSHOULDER, 6);
+        MAP_BUTTON(ImGuiKey_GamepadR1, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, 7);
+        MAP_BUTTON(ImGuiKey_GamepadL3, SDL_CONTROLLER_BUTTON_LEFTSTICK, 4);
+        MAP_BUTTON(ImGuiKey_GamepadR3, SDL_CONTROLLER_BUTTON_RIGHTSTICK, 5);
     }
-#undef MAP_BUTTON
     return ImGuiKey_None;
 }
+
+#undef MAP_BUTTON
 
 //struct ImGui_ImplSDL2_AxisMap
 //{

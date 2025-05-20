@@ -6,6 +6,18 @@ if [ -d output ]; then
     rm -rf output/
 fi
 
+
+if [ ! -e dotnet ]; then
+    # docker
+    if [ -e ~/.dotnet/dotnet ]; then
+        export DOTNET_ROOT=~/.dotnet
+        export PATH=$PATH:$DOTNET_ROOT
+    else
+        echo "dotnet was not found"
+        exit 1
+    fi
+fi
+
 echo Building the project...
 dotnet build managed/program.csproj 
 

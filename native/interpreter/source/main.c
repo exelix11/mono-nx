@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
 
     mono_jit_cleanup(domain);
 
+    free(launch_dll);
+
     application_terminate();
 
     return 0;

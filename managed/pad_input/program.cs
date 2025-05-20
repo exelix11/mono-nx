@@ -19,13 +19,13 @@ while (LibnxApplet.appletMainLoop())
 	if (pad.ButtonsDown.HasFlag(HidNpadButton.Plus))
 		break;
 
-	// The console class is not implemented so Console.Clear() will crash
+	// The console class is not implemented so Console.Clear() will throw NotImplementedException
 	// However you can manually use terminal escape codes to clear the screen
 	Console.Write("\x1b[1;1H\x1b[2J");
 
-	Console.Write($"Buttons: {pad.Buttons}");
-	Console.Write($"Left stick: x={pad.State.sticks_0}");
-	Console.Write($"Right stick: x={pad.State.sticks_1}");
+	Console.WriteLine($"Buttons: {pad.Buttons}");
+	Console.WriteLine($"Left stick: x={pad.State.sticks_0}");
+	Console.WriteLine($"Right stick: x={pad.State.sticks_1}");
 
 	Console.WriteLine("");
 	Console.WriteLine("Press start to exit");

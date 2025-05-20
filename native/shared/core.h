@@ -38,6 +38,7 @@ struct AppConfiguration
     char *file_io_redirect;
 
     bool force_console_init;
+    bool exit_process_on_end;
 };
 
 extern struct AppConfiguration g_config;
@@ -48,9 +49,13 @@ void application_terminate();
 void application_chdir_to_assembly(const char* path);
 
 void input_ensure_init();
+
 void console_ensure_init();
 void console_dispose();
 void console_update();
+
+void socket_esnure_init_thread_safe();
+void socket_terminate();
 
 void fatal_error(const char *message);
 

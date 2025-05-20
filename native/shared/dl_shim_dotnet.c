@@ -1,7 +1,20 @@
 #include "dl_shim_base.h"
 
+// I noticed that bsd would sometimes crash when running the nro multiple times.
+// This should have been fixed now but regardless, we only initialize sockets once if actually needed.
+int32_t SystemNative_Socket_Hook(int32_t addressFamily, int32_t socketType, int32_t protocolType, intptr_t* createdSocket)
+{
+    extern void socket_esnure_init_thread_safe();
+    extern int32_t SystemNative_Socket(int32_t addressFamily, int32_t socketType, int32_t protocolType, intptr_t* createdSocket);
+
+    socket_esnure_init_thread_safe();
+    return SystemNative_Socket(addressFamily, socketType, protocolType, createdSocket);
+}
+
 void *getsym_SystemNative(const char *name)
 {
+    SYM_RESOLVE_EXISTING_NAMED("SystemNative_Socket", SystemNative_Socket_Hook);
+
     SYM_RESOLVE(SystemNative_CreateAutoreleasePool);
     SYM_RESOLVE(SystemNative_DrainAutoreleasePool);
     SYM_RESOLVE(SystemNative_GetWindowSize);
@@ -157,7 +170,6 @@ void *getsym_SystemNative(const char *name)
     SYM_RESOLVE(SystemNative_GetRawSockOpt);
     SYM_RESOLVE(SystemNative_SetSockOpt);
     SYM_RESOLVE(SystemNative_SetRawSockOpt);
-    SYM_RESOLVE(SystemNative_Socket);
     SYM_RESOLVE(SystemNative_GetSocketType);
     SYM_RESOLVE(SystemNative_GetAtOutOfBandMark);
     SYM_RESOLVE(SystemNative_GetBytesAvailable);

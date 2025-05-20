@@ -1,9 +1,51 @@
 #include "core.h"
 #include <unistd.h>
+#include <pthread.h>
+
+static bool logging = false;
 
 static PadState pad;
 static bool using_console = false;
-static bool logging = false;
+
+static pthread_mutex_t sockets_mutex = PTHREAD_MUTEX_INITIALIZER;
+static volatile bool using_sockets = false;
+
+void socket_esnure_init_thread_safe()
+{    
+    if (using_sockets) 
+        return;
+
+    pthread_mutex_lock(&sockets_mutex);
+    if (using_sockets) {
+        pthread_mutex_unlock(&sockets_mutex);
+        return;
+    }
+
+    using_sockets = true;
+
+    io_debugf("Initializing sockets");
+    Result rc = socketInitializeDefault();
+    if (R_FAILED(rc))
+    {
+        using_sockets = false;
+        pthread_mutex_unlock(&sockets_mutex);
+        io_debugf("Failed to init socketing: %08X", rc);
+        fatal_error("failed to init socketing");
+        return;
+    }
+
+    pthread_mutex_unlock(&sockets_mutex);
+}
+
+void socket_terminate()
+{
+    if (using_sockets)
+    {
+        io_debugf("Closing sockets");
+        socketExit();
+        using_sockets = false;
+    }
+}
 
 struct AppConfiguration g_config;
 
@@ -179,10 +221,11 @@ void Mono_unhandledExceptionHook(MonoObject *exc, void *user_data)
 
 static char *inf_dup_unquote(const char *input)
 {
-    char *s = io_strdup(input);
-    if (!s)
-        return NULL;
-
+    char* duplicate = io_strdup(input);    
+    if (!duplicate)
+    return NULL;
+    
+    char *s = duplicate;
     int l = strlen(s);
     if (l && s[0] == s[l - 1] && (s[0] == '\'' || s[0] == '"'))
     {
@@ -190,7 +233,11 @@ static char *inf_dup_unquote(const char *input)
         s++;
     }
 
-    return s;
+    // Return a string that is safe to free
+    char* res = io_strdup(s);
+    free(duplicate);
+
+    return res;
 }
 
 static int handle_ini_line(void *user, const char *section, const char *name, const char *value)
@@ -217,6 +264,8 @@ static int handle_ini_line(void *user, const char *section, const char *name, co
         pconfig->file_io_redirect = inf_dup_unquote(value);
     else if (MATCH("nx", "force_console_init"))
         pconfig->force_console_init = (strcmp(value, "true") == 0);
+    else if (MATCH("nx", "exit_process_on_end"))
+        pconfig->exit_process_on_end = (strcmp(value, "true") == 0);
     else
     {
         return 0; /* unknown section/name, error */
@@ -229,6 +278,8 @@ static int handle_ini_line(void *user, const char *section, const char *name, co
 
 bool application_initialize(const char* configFile)
 {
+    memset(&g_config, 0, sizeof(struct AppConfiguration));
+
     if (ini_parse(configFile, handle_ini_line, &g_config) < 0)
     {
         io_debugf("Can't load app config from %s", configFile);
@@ -241,12 +292,6 @@ bool application_initialize(const char* configFile)
     if (g_config.force_console_init)
         console_ensure_init();
     
-    if (R_FAILED(socketInitializeDefault()))
-    {
-        fatal_error("failed to init socketing");
-        return false;
-    }
-
     // It's fine if this fails, the runtime has fallbacks for it.
     csrngInitialize();
 
@@ -260,6 +305,7 @@ bool application_initialize(const char* configFile)
     }
     else if (g_config.udp_io_redirect)
     {
+        socket_esnure_init_thread_safe();
         if (io_stdio_to_udp(g_config.udp_io_redirect, 9999) < 0)
         {
             fatal_error("Failed to redirect stdio to udp");
@@ -292,24 +338,51 @@ bool application_initialize(const char* configFile)
     return true;
 }
 
-void application_terminate()
-{    
-    // If the console was initialized, draw one last frame to make sure everything went well
-    console_update();
+// Internal libnx symbol
+u32 __nx_applet_exit_mode = 0;
 
+void application_terminate()
+{
+    io_debugf("Terminating application");
+
+    // This symbol is defined in mono and is used as a workaround to force release all the kernel JIT objects
+    extern void nx_jit_force_dispose(void);
+
+    nx_jit_force_dispose();
+    
     csrngExit();
     
-    socketExit();
+    io_stdio_finish();
+
+    socket_terminate();
 
     console_dispose();
+
+    io_dispose_libicu();
+
+    if (g_config.icudata_path) free(g_config.icudata_path);
+    if (g_config.assembly_dir) free(g_config.assembly_dir);
+    if (g_config.config_dir) free(g_config.config_dir);
+    if (g_config.default_assembly) free(g_config.default_assembly);
+    if (g_config.udp_io_redirect) free(g_config.udp_io_redirect);
+    if (g_config.file_io_redirect) free(g_config.file_io_redirect);
+
+    if (g_config.exit_process_on_end) 
+    {
+        // This forces libnx to always use applet exit + svcExitProcess
+        __nx_applet_exit_mode = 1;
+        // Terminate cleanly-enough
+        exit(0);
+    }
 }
 
 void application_chdir_to_assembly(const char* path)
 {
-    char* dir = io_strdup(path);
-    int dirlen = strlen(dir);
+    int dirlen = strlen(path);
     if (dirlen < 2)
         return;
+    
+    char* dir = io_strdup(path);
 
     bool found = false;
     for (int i = dirlen - 1; i >= 0; i--)
@@ -327,10 +400,11 @@ void application_chdir_to_assembly(const char* path)
         }
     }
 
-    if (!found)
-        return;
-    
-    io_debugf("chdir(%s)", dir);
-    chdir(dir);
+    if (found)
+    {    
+        io_debugf("chdir(%s)", dir);
+        chdir(dir);
+    }
+
     free(dir);
 }
