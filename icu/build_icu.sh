@@ -45,7 +45,3 @@ sh ../icu/source/configure --disable-renaming --disable-shared --enable-static -
 
 make -j8
 make install
-
-# Copy the data file to the sd card files
-mkdir -p ../sd_files/mono/etc
-cp ./libnx/share/icu/77.1/icudt77l.dat ../sd_files/mono/etc

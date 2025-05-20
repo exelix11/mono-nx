@@ -2,6 +2,10 @@
 
 set -e 
 
+# Copy the icu data file to the sd card files
+mkdir -p ../sd_files/mono/etc/
+cp $ICU_NX_INSTALL_DIR/share/icu/77.1/icudt77l.dat  sd_files/mono/etc/
+
 # Copy mono and the fallback dll
 cp native/interpreter/mono_nx.nro sd_files/mono/
 cp managed/pad_input/bin/Debug/net9.0/pad_input.dll sd_files/mono/

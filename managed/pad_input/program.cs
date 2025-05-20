@@ -24,8 +24,8 @@ while (LibnxApplet.appletMainLoop())
 	Console.Write("\x1b[1;1H\x1b[2J");
 
 	Console.WriteLine($"Buttons: {pad.Buttons}");
-	Console.WriteLine($"Left stick: x={pad.State.sticks_0}");
-	Console.WriteLine($"Right stick: x={pad.State.sticks_1}");
+	Console.WriteLine($"Left stick: {pad.State.sticks_0}");
+	Console.WriteLine($"Right stick: {pad.State.sticks_1}");
 
 	Console.WriteLine("");
 	Console.WriteLine("Press start to exit");

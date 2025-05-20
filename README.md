@@ -2,7 +2,11 @@
 
 This is an unofficial port of the mono runtime to the switch homebrew toolchain. It can run dotnet 9.0 applications using the mono interpreter by loading the dll or exe files directly on console. It can also build .NET assemblies as static libraries using mono AOT.
 
-While a few things do work this is only a demo. I don't plan on continuing development or fix bugs, take this project just as a proof of concept. There is minimal versioning and testing, you probably don't want to use this to actually make homebrew.
+![](notes/assets/explorer_demo.mp4)
+This is a clip of the [explorer_demo](managed/explorer_demo) running on console. A C# app rendering a GUI with SDL2 and Imgui.
+More clips: [pad_demo](notes/assets/pad_demo.mp4) and [guess_number](notes/assets/number_demo.mp4)
+
+While a few things do work this is only an experiment. I don't plan on continuing development or fix bugs, take this project just as a proof of concept. There is minimal versioning and testing, you probably don't want to use this to actually make homebrew.
 
 If you're curious about the process of porting mono to a weird platform I wrote a [write-up](notes/writeup.md) with some of the challenges I faced and my workarounds.
 
@@ -48,7 +52,7 @@ You will probably want to setup one of the remote logging options in the [config
 
 The build steps are a little convoluted because of the number of moving parts, I tried to split everything to its own somewhat documented bash script so it should be easier to understand what's needed for what.
 
-On a default ubuntu image you will need to manually install devkita64, CMake 3.20 or higher, libclang and dotnet-sdk-9.0. On other distros refer to the documentation on the dotnet/runtime repo. For your convenience I prepared a docker file which already has all the required components. You can enter the docker environment using
+On a default ubuntu image you will need to manually install devkita64, CMake 3.20 or higher, libclang and dotnet-sdk-9.0. On other distros refer to the documentation on the dotnet/runtime repo. For your convenience I prepared a docker file which already has all the required components. You can enter the docker environment using:
 
 ```
 docker build . -t monobuild
@@ -58,19 +62,19 @@ docker run --rm -it -v $(pwd):/mono-nx monobuild
 First you will need to build icu, mono and the framework libraries. This is needed only once unless you want to try modifying mono.
 
 1) Ensure the DEVKITPRO env var is set
-2) Run `source env.sh` to define a few of the environment variables needed
+2) Run `source env.sh` to define a few of the environment variables needed. This is done automatically in the docker image
 3) Build libicu with `cd icu && ./build_icu.sh` 
 4) Clone my fork of the dotnet/runtime repo `git clone -b libnx https://github.com/exelix11/dotnet_runtime.git`
 4) Build mono with `./build_mono.sh` 
     - Fix all the inevitable depenency errors that appear and try again until it works
     - You can clean the state of the dotnet build system using `cd dotnet_runtime && ./buld.sh --clean`
 
-If you want to modify mono or the runtime you'll want to see what `build_mono.sh` does and only build the subsets you're trying to modify.
+If you want to modify mono or the runtime you should check out the build steps in `build_mono.sh` and only build the subsets you're trying to modify.
 
 Now, depending on what you want to do you can:
 
-- Build the interpreter in `native/interpreter` with `make`
 - Build the C# assemblies for the interpreter in `managed` with `./managed_build.sh`
+- Build the interpreter in `native/interpreter` with `make`
 - Build the AOT example in `native/aot` with `./build_aot.sh` and then `make`
 
 Finally prepare the sd card release `copy_sd_files.sh`

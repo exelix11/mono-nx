@@ -62,9 +62,9 @@ int main(int argc, char *argv[])
 
     mono_jit_cleanup(domain);
 
-    application_terminate();
-
     romfsExit();
+    
+    application_terminate();
 
     return 0;
 }
