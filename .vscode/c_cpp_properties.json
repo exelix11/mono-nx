@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "Switch",
+            "includePath": [
+                "/opt/devkitpro/libnx/include",
+                "/opt/devkitpro/devkitA64/aarch64-none-elf/include",
+                "/opt/devkitpro/portlibs/switch/include/SDL2/",
+                "${workspaceFolder}/native/",
+                "${workspaceFolder}/native/shared/",
+                "${workspaceFolder}/native/shared/third_party",
+                "${workspaceFolder}/native/shared/third_party/cimgui",
+                "${workspaceFolder}/dotnet_runtime/artifacts/obj/mono/libnx.arm64.Debug/out/include/mono-2.0",
+                "${workspaceFolder}/dotnet_runtime/src/mono/",
+                "${workspaceFolder}/icu/libnx/include"
+            ],
+            "defines": [
+                "__SWITCH__=1"
+            ],
+            "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-gcc",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-arm64"
+        }
+    ],
+    "version": 4
+}

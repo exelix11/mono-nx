@@ -23,11 +23,11 @@ If you're curious about the process of porting mono to a weird platform I wrote 
 
 ## What does not work
 
-- HTTPS and most of `System.Security` doesn't work due to the lack of openssl
+- HTTPS and most of `System.Security` doesn't work because we have no openssl port on switch
 - Abitrary P/Invoke doesn't work due to the lack of dynamic linking, all native function entrypoints must be defined beforehand and statically linked
-- Any other OS-dependant API that was not mentioned previously will likely not work because it was not explicitly implemented. Examples are `Console.Read`, `Console.Clear` and many more.
+- Any other OS-dependant API that was not mentioned previously will likely not work because it was not explicitly implemented. Examples are `Console.Read`, `Console.Clear`, `Process` and many more.
 
-Also, exiting the interpreter and launching another dll in the same hbmenu session will consistently crash in malloc down the mono call stack. I'm not sure why this happens, it seems that that historically mono has had problems cleaning up resources, see [here](https://github.com/mono/mono/issues/20191) and [here](https://stackoverflow.com/questions/10651230/multiple-mono-jit-init-mono-jit-cleanup-issue). These posts are quite old so it might not still be the case, it could also be an issue related to the homebrew environment. My workaround is to just terminate the process on exit.
+Also, exiting the interpreter and launching another dll or sometimes homebrew in the same hbmenu session will eventually crash when writing to memory returned by malloc. I'm not sure why this happens, historically mono has had problems [cleaning up resources](https://github.com/mono/mono/issues/20191) but it could also be an issue related to the homebrew environment. I tried to do some debugging but ultimately my workaround is to just terminate the process on exit.
 
 ## Included demos
 
