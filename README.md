@@ -7,9 +7,9 @@ https://github.com/user-attachments/assets/ab57d77b-67ed-4c05-8017-9a1706f8c645
 This is a clip of a [file explorer C# app rendering a GUI with SDL2 and Imgui](managed/explorer_demo) running on console.
 More clips: [pad_demo](notes/assets/pad_demo.mp4) and [guess_number](notes/assets/number_demo.mp4)
 
-While a few things do work this is only an experiment. I don't plan on continuing development or fix bugs, take this project just as a proof of concept. There is minimal versioning and testing, you probably don't want to use this to actually make homebrew.
+While a few things do work this is only an experiment, there is no support and I don't plan on continuing development or fix bugs. Take this project just as a proof of concept with minimal testing, you probably don't want to use this to actually make homebrew.
 
-If you're curious about the process of porting mono to a weird platform I wrote a [write-up](notes/writeup.md) with some of the challenges I faced and my workarounds.
+If you're curious about the process of porting mono to a weird platform I documented some of the challenges I faced and my workarounds in this [write-up](notes/writeup.md).
 
 ## What works
 
@@ -27,12 +27,12 @@ If you're curious about the process of porting mono to a weird platform I wrote 
 - Abitrary P/Invoke doesn't work due to the lack of dynamic linking, all native function entrypoints must be defined beforehand and statically linked
 - Any other OS-dependant API that was not mentioned previously will likely not work because it was not explicitly implemented. Examples are `Console.Read`, `Console.Clear`, `Process` and many more.
 
-Also, exiting the interpreter and launching another dll or sometimes homebrew in the same hbmenu session will eventually crash when writing to memory returned by malloc. I'm not sure why this happens, historically mono has had problems [cleaning up resources](https://github.com/mono/mono/issues/20191) but it could also be an issue related to the homebrew environment. I tried to do some debugging but ultimately my workaround is to just terminate the process on exit.
+Also, exiting the interpreter and launching another dll or sometimes homebrew in the same hbmenu session will eventually crash. I'm not sure why this happens, historically mono has had problems [cleaning up resources](https://github.com/mono/mono/issues/20191) but it could also be an issue related to the homebrew environment. I tried to do [some debugging](https://github.com/exelix11/mono-nx/blob/master/notes/writeup.md#the-smoke-test) but ultimately my workaround is to just terminate the process on exit.
 
 ## Included demos
 
 I prepared a few prebuilt examples in the releases tab:
-- aot_example.nro is a fully self-contained AOT-complied C# application. It generates a random number and ask you to guess it
+- aot_example.nro is a fully self-contained AOT-complied C# application. It generates a random number and asks you to guess it
 - pad_input.dll is a C# program that reads the controls with the native libnx api
 - example.dll is a C# program that shows most of the APIs that are currently implemented
 - explorer_demo.dll is a C# program that shows a file explorer-like GUI using imgui and SDL2. This will also work on windows and linux with no code changes if you use [my cimgui fork](https://github.com/exelix11/CimguiSDL2Cross/releases/tag/r2)
@@ -44,10 +44,10 @@ These last four are included in the `mono-interpreter.zip` release. It will add 
 
 If you want to try making a switch homebrew in C# you can follow the examples in the `managed/` folder, you can build them using the normal dotnet 9.0 sdk for linux or windows and then copy the final dll files to your console.
 
-You will probably want to setup one of the remote logging options in the [config.ini](sd_files/mono/config.ini) file to catch unhandled exceptions
+You will probably want to setup one of the logging options in the [config.ini](sd_files/mono/config.ini) file to catch unhandled exceptions.
 
 > [!IMPORTANT]  
-> Reminder for when you will hit things that do not work: **this is an unsupported port, do NOT open issues on the real dotnet/runtime repo about this**. If you want to help document what is borken you can open an issue in this repo but currently I do not plan on investigating and fixing more unsupported features.
+> Reminder for when you **will** hit things that do not work. **this is an unsupported port, do NOT open issues on the real dotnet/runtime.**. If you want to help document what is borken you can open an issue in this repo, I won't provide support in the form of investigating and fixing unsupported features but I can answer technical questions.
 
 # Building the runtime
 
@@ -65,7 +65,7 @@ First you will need to build icu, mono and the framework libraries. This is need
 1) Ensure the DEVKITPRO env var is set
 2) Run `source env.sh` to define the environment variables needed. This is done automatically in the docker image
 3) Build libicu with `cd icu && ./build_icu.sh` 
-4) Clone my fork of the dotnet/runtime repo `git clone -b libnx https://github.com/exelix11/dotnet_runtime.git`
+4) Clone the `libnx` branch from [my fork of the dotnet/runtime](https://github.com/exelix11/dotnet_runtime/tree/libnx) repo `git clone --depth=1 -b libnx https://github.com/exelix11/dotnet_runtime.git`
 4) Build mono with `./build_mono.sh` 
     - Fix all the inevitable depenency errors that appear and try again until it works
     - You can clean the state of the dotnet build system using `cd dotnet_runtime && ./buld.sh --clean`
