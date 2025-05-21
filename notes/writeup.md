@@ -34,7 +34,7 @@ I started by thinking about what would be the best approach, I've considered mul
 
 - [Native AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot) was my first thought, this new AOT runtime can compile managed code to arm64 static libraries. Quickly inspecting the intermediate .a files for a linux-arm64 build revealed they depend on the PAL (platform abstraction library) and the AOT runtime. I started poking around in the source and soon became overwhelmed by the complex build system on the official dotnet/runtime repo, but I wasn't too concerned about that yet since I wanted to first evaluate the code.<br>The first blocking issue I noticed was exception handling. It seems that with NativeAOT even managed `NullReferenceExceptions` will trigger an access violation and go through signals or [VEH](https://learn.microsoft.com/en-us/windows/win32/debug/vectored-exception-handling) on Windows. Handling a data abort is [probably possible](https://switchbrew.org/wiki/SVC#Exception_handling) on libnx but I'm not aware of any reference that restores the context instead of terminating after catching an exception, doing all the research and experimenting for this felt way too much prep work for a proof of concept that in the end might not even work. Also, from my native AOT android experiments I knew that the unix PAL requires `mmap`-ing a huge chunk of memory, adding a risk of hitting a dead end eventually. I know there are multiple GC engines which maybe could sidestep this issue but did not investigate further.
 - [CoreCLR](https://github.com/dotnet/runtime/tree/main/src/coreclr) is the runtime you get when running modern dotnet on supported platforms, most of the considerations for Native AOT apply here too. I also assumed that since this is the main binary for first-class platforms it would have a lot more OS-dependent code.
-- [bflat](https://github.com/bflattened/bflat) is an interesting project, a build tool that uses the roslyn API to build native dotnet code with a custom runtme. It also comes with a `zerolib` demo that can build binaries that don't depend on the framework at all such as UEFI binaries. I was confident I could get this last part to work on switch, but my goal was something at least resembling the real runtime.
+- [bflat](https://github.com/bflattened/bflat) is an interesting project, a build tool that uses the roslyn API to build native dotnet code with a custom runtime. It also comes with a `zerolib` demo that can build binaries that don't depend on the framework at all such as UEFI binaries. I was confident I could get this last part to work on switch, but my goal was something at least resembling the real runtime.
 - [dotnet anywhere](https://github.com/chrisdunelm/DotNetAnywhere) was the most promising of the bunch, however I remember playing around with it a few years ago already (yes, this thing has been in my mind for that long) and hitting a wall with 64-bit support, I did not give it a second chance.
 - [Mono AOT](https://www.mono-project.com/docs/advanced/aot/) is a very promising concept, like NativeAOT it compiles C# into native code on top of the mono runtime. We can't use its most common configuration that produces dynamic libraries because we don't have support for that on switch. However it seems it also supports producing static libs with a few gotchas. The main issue for this is that we need to build the rest of the mono runtime for our target first.
 - [WineHQ/Mono](https://gitlab.winehq.org/mono/mono): By now, I pretty much decided I'd try to port the mono interpreter, the question was which one? Apparently there is a non-microsoft fork from WineHQ which has the original build system. This was an interesting avenue since there's [prior work](https://github.com/Stary2001/mono/commit/e269d7ace09a28624bf1d0e519364cee72bc30f7) on getting it to run on switch but that didn't seem to go far enough to justify using it.
@@ -114,7 +114,7 @@ With a few more fixes I was finally able to get to the point of mono attempting 
 
 ![Slowly getting there](https://github.com/user-attachments/assets/74b2d500-9b76-45b4-b9a6-b8b930864b49)
 
-Here I was somewhat confident that it could already run a managed dll if I found a way to build it without a reference to the core library, something simple like a method that returns an integer. However that was not my geal so I went ahead with porting the core library.
+Here I was somewhat confident that it could already run a managed dll if I found a way to build it without a reference to the core library, something simple like a method that returns an integer. However that was not my goal so I went ahead with porting the core library.
 
 ## System.Private.CoreLib
 
@@ -134,7 +134,7 @@ The answer is that it isn't doing any dynamic linking. Using mono's `mono_dl_fal
 
 There are a few very long files containing only the dynamic function definitions:
 
-![rJ4PWGR1eg](https://github.com/user-attachments/assets/7c96b134-d281-4e00-b0d1-a8f5ca6f42b6)
+![](https://github.com/user-attachments/assets/7c96b134-d281-4e00-b0d1-a8f5ca6f42b6)
 
 I generated these definitions by extracting the symbols from the .a libraries and transforming them with some regex and text editing macros.
 
@@ -334,7 +334,7 @@ I don't believe this can happen in single thread scenarios because as long as th
 
 Just for the sake of experimenting, since I already had a libnx code-manager implementation I wanted to try running full JIT  to see how far it could go. As expected it fails pretty early due to the implementation confusing the rw and rx pointers in jump tables. P/Invoke stubs work fine only because they're extremely simple by comparison.
 
-I also decided to dig in both [libnx's JIT implementation](https://github.com/switchbrew/libnx/blob/master/nx/source/kernel/jit.c) and the [open source kernel reimplementation](https://github.com/Atmosphere-NX/Atmosphere/blob/master/libraries/libmesosphere/source/svc/kern_svc_code_memory.cpp) to ensure I was not missing an easy way out. In retrospect, I should have done this earlier as it gave me two key findings:
+I also decided to dig in both [libnx's JIT implementation](https://github.com/switchbrew/libnx/blob/master/nx/source/kernel/jit.c) and the [open source kernel implementation](https://github.com/Atmosphere-NX/Atmosphere/blob/master/libraries/libmesosphere/source/svc/kern_svc_code_memory.cpp) to ensure I was not missing an easy way out. In retrospect, I should have done this earlier as it gave me two key findings:
 
 1. The default backend on modern firmware is `JitType_CodeMemory`, which unlike what the API might suggest is always mapped both in the RX and RW views, we see this in the implementation for the [function that switches permissions](https://github.com/switchbrew/libnx/blob/60bf943ec14b1fb2ae169e627e64ab93a24c042b/nx/source/kernel/jit.c#L110). While this is not real RWX it solves the multi threading issue I mentioned earlier. Knowing this I rewrote the codeman implementation to clean it up a bit.
 2. By experimenting with the raw `svcControlCodeMemory` syscall manually I figured out that it is indeed possible to have a single memory view and manually switch it protections between RW and RX by means of unmapping and then mapping it again at the same address. This however brings back the threading issue.
@@ -385,7 +385,7 @@ Something I should mention is that none of this worked in the emulator, in fact 
 
 Without further ado, here's mono on switch sending an HTTP request to google.com
 
-![ryWhcRmWxg](https://github.com/user-attachments/assets/d89d6143-0f54-4897-81f8-3a8802674fa9)
+![](https://github.com/user-attachments/assets/d89d6143-0f54-4897-81f8-3a8802674fa9)
 
 Getting the `HttpClient` class to work required some additional fiddling with `System.Security`, it works but TLS is not supported because that depends on native platform APIs, for linux that is openssl.
 
@@ -427,7 +427,7 @@ Since the runtime and BCL are already ported getting this to work required minim
 
 In fact, the build system here gave me lots of headaches. We need to build linux-x64 mono with the libnx-arm64 cross compiler configuration. There are two steps involved: first build a limited libnx-arm64 version which produces a header file containing the target ABI information, then build the native linux compiler with that header file.
 
-It's this way because the x64 compiler doesn't know the arm64 ABI so the build system runs `offsets-tool.py` that uses libclang to "simulate" a mono build for the target and extract all the binary offests for the various structures.
+It's this way because the x64 compiler doesn't know the arm64 ABI so the build system runs `offsets-tool.py` that uses libclang to "simulate" a mono build for the target and extract all the binary offsets for the various structures.
 
 Here's kicker though, if I add my libnx target among the other AOT targets cmake fails trying to build a linux program with the libnx toolchain.
 
