@@ -71,7 +71,7 @@ elseif(EXISTS ${CROSS_ROOTFS}/libnx/include/switch.h)
 
 Once everything was in place, I could start building mono by running `./build.sh --subset Mono.Runtime --cross -a arm64 --os libnx`, which obviously resulted in an endless amount of build errors.
 
-I approached this by first reducing the amount of source files needed, I disabled most of the feature flags I could find, the current [CMakeLists.txt](https://github.com/exelix11/dotnet_runtime/blob/libnx/src/mono/CMakeLists.txt) file for mono looks like this:
+I approached this by first reducing the amount of source files needed, I searched for and disabled most of the feature flags I could find. The current [CMakeLists.txt](https://github.com/exelix11/dotnet_runtime/blob/libnx/src/mono/CMakeLists.txt) file for mono looks like this:
 
 ```cmake
 elseif(CLR_CMAKE_HOST_OS STREQUAL "libnx")
@@ -412,7 +412,7 @@ In this specific case I've noticed that the next homebrew in line will likely cr
 
 I debugged both:
 - The interpreter crashes inside mono initialization in `_malloc_r` itself.
-- ftpd crashes inside of `memset` called by libnx while initializing the [`tmem`]([https://github.com/switchbrew/libnx/blob/master/nx/source/kernel/tmem.c#L25](https://github.com/switchbrew/libnx/blob/de7cfeb3d95990abfd7595d49ab8d89a11099178/nx/source/kernel/tmem.c#L25)) needed for [`socketInitializeDefault`](https://github.com/switchbrew/libnx/blob/de7cfeb3d95990abfd7595d49ab8d89a11099178/nx/source/services/bsd.c#L239).
+- ftpd crashes inside of `memset` called by libnx while initializing the [`tmem`](https://github.com/switchbrew/libnx/blob/de7cfeb3d95990abfd7595d49ab8d89a11099178/nx/source/kernel/tmem.c#L25) needed for [`socketInitializeDefault`](https://github.com/switchbrew/libnx/blob/de7cfeb3d95990abfd7595d49ab8d89a11099178/nx/source/services/bsd.c#L239).
 
 In both cases the pointer that causes the data abort seems to be correct, as in it points close enough to the heap region. It is worth mentioning that every homebrew is statically linked with its own allocator so as far as I know heap corruption shouldn't pass between apps. 
 
