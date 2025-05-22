@@ -71,7 +71,7 @@ elseif(EXISTS ${CROSS_ROOTFS}/libnx/include/switch.h)
 
 Once everything was in place, I could start building mono by running `./build.sh --subset Mono.Runtime --cross -a arm64 --os libnx`, which obviously resulted in an endless amount of build errors.
 
-I approached this by first reducing the amount of source files needed by finding and disabling most of the feature flags i could find, the current [CMakeLists.txt](https://github.com/exelix11/dotnet_runtime/blob/libnx/src/mono/CMakeLists.txt) file for mono looks like this:
+I approached this by first reducing the amount of source files needed, I disabled most of the feature flags I could find, the current [CMakeLists.txt](https://github.com/exelix11/dotnet_runtime/blob/libnx/src/mono/CMakeLists.txt) file for mono looks like this:
 
 ```cmake
 elseif(CLR_CMAKE_HOST_OS STREQUAL "libnx")
@@ -104,7 +104,7 @@ Many `#ifdefs` later, I had a static library built for libnx and no way to test 
 
 I wrote a quick wrapper using the mono embedding API and tried it on console. As one might expect, it resulted in an immediate crash. A little underwhelming, I know.
 
-At first I tried debugging with the GDB stub implementation we have on switch, however I decided to switch to logging and testing on an emulator, with a few symlinks I could reduce my build-test cycle to a few seconds which greatly helped.
+At first I tried debugging with the GDB stub implementation we have on switch, however I decided to switch to logging and testing on an emulator, with a few symlinks I could reduce my build-test cycle to a few seconds which greatly helped. It's hard to overstate how helpful a short build-test cycle can be.
 
 After figuring out how to listen to mono's internal logging events, i started to make real progress since I started getting clean error messages and source locations.
 
@@ -116,21 +116,24 @@ With a few more fixes I was finally able to get to the point of mono attempting 
 
 Here I was somewhat confident that it could already run a managed dll if I found a way to build it without a reference to the core library, something simple like a method that returns an integer. However that was not my goal so I went ahead with porting the core library.
 
+> [!NOTE]
+> With the hindsight of having finished the port, this probably wouldn't have worked. Mono requires the corelib dll very early in its execution to load the metadata of some core C# classes.
+
 ## System.Private.CoreLib
 
 Many dotnet libraries are split between a managed component and a native component. Building the managed component is usually easy enough since it's just a C# project, while the native part requires some porting work.
 
 As a sanity check to ensure mono was actually loading and executing some IL code I also tried to copy over a `System.Private.CoreLib.dll` i had laying around on my PC. 
 
-> [!NOTE]
->With the hindsight of having finished the port I now know there are a thousand of things that won't work with this approach but still, seeing the result definitely gave me more motivation to continue the project.
-
 ![Mono attempting to load System.Native](https://github.com/user-attachments/assets/fdf09177-ef5f-462e-8eda-09f4c0790f63)
 
 This was the first tangible success, the logs show that mono started executing the constructors for some managed classes and eventually failed at the first P/Invoke call, which is what I expected since the native part was still missing.
 
+> [!NOTE]
+>Again, after finishing the port I now know there are a thousand of things that won't work with this approach besides P/Invoke. But still, seeing the result definitely gave me more motivation to continue the project.
+
 At this point the astute reader might be wondering how does P/Invoke work if the switch homebrew toolchain doesn't have dynamic linking.
-The answer is that it isn't doing any dynamic linking. Using mono's `mono_dl_fallback_register` function the wrapper application simulates dynamic loading by just returning function pointers to functions that have been linked statically.
+The answer is that it isn't doing any dynamic linking. Using mono's `mono_dl_fallback_register` function the wrapper application simulates `dlopen`/`dlsym` by just returning function pointers to functions that have been linked statically.
 
 There are a few very long files containing only the dynamic function definitions:
 
@@ -403,17 +406,17 @@ Running a more complex piece of code revealed a few issues I missed:
 - File paths on libnx are rooted with the name of the newlib device they refer to, the most common are `sdmc:/` and `romfs:/`. Most C functions like `readlink` and `getcwd` will return paths in this format. Unfortunately, this breaks all posix code around paths. For C# I implemented support into the `Path` class and file access now works as intended. Native mono code such as the dll loader will fail when one such path is passed, my workaround for this is using `/` rooted paths which refer to the device of the current working directory but you won't be able to mix loading files from the sd card and the romfs.
 - While playing around with async sockets I had mono throw a fatal error after it tried to call `pthread_kill`, which is not supported on switch. I tracked this down to `mono_thread_info_resume` and related functions. My workaround here was switching thread mode to cooperative, this comes with a [set of implications](https://github.com/dotnet/runtime/blob/main/docs/design/mono/mono-thread-state-machine.md#cooperative-suspend) but I don't think this affects us much.
 
-As for issues I couldn't figure out, there is something that corrupts the state of the homebrew process and subsequent homebrew ran in the same process will crash. This is an issue specific to switch homebrew due to the legacy of how nro files are loaded by [nx-hbloader](https://github.com/switchbrew/nx-hbloader): typically they all share the same process as far as the OS can see.
+As for issues I couldn't figure out, there is something that corrupts the state of the homebrew process and subsequent homebrew ran in the same process will crash. This is an issue specific to switch homebrew due to the legacy of how nro files are loaded by [nx-hbloader](https://github.com/switchbrew/nx-hbloader): typically they all share the same process as far as the OS can see. So if we have some kernel resource leak our homebrew might exit fine but the next one will fail in a way that is hard to debug. 
 
-So if we have some kernel resource leak our homebrew might exit fine but the next one will fail in a way that is hard to debug. In this specific case I've noticed that the next homebrew in line will likely crash when writing to memory returned by malloc. Specific applications like the mono interpreter itself and [ftpd](https://github.com/mtheall/ftpd) consistently reproduce this issue while not every other homebrew I tried does.
+In this specific case I've noticed that the next homebrew in line will likely crash when writing to memory returned by malloc. Specific applications like the mono interpreter itself and [ftpd](https://github.com/mtheall/ftpd) consistently reproduce this issue while not every other homebrew I tried does.
 
 I debugged both:
 - The interpreter crashes inside mono initialization in `_malloc_r` itself.
-- ftpd crashes inside of `memset` called by libnx while initializing the `tmem` needed for `socketInitializeDefault`.
+- ftpd crashes inside of `memset` called by libnx while initializing the [`tmem`]([https://github.com/switchbrew/libnx/blob/master/nx/source/kernel/tmem.c#L25](https://github.com/switchbrew/libnx/blob/de7cfeb3d95990abfd7595d49ab8d89a11099178/nx/source/kernel/tmem.c#L25)) needed for [`socketInitializeDefault`](https://github.com/switchbrew/libnx/blob/de7cfeb3d95990abfd7595d49ab8d89a11099178/nx/source/services/bsd.c#L239).
 
 In both cases the pointer that causes the data abort seems to be correct, as in it points close enough to the heap region. It is worth mentioning that every homebrew is statically linked with its own allocator so as far as I know heap corruption shouldn't pass between apps. 
 
-While mono has had reports of problems with the deinit code [here](https://github.com/mono/mono/issues/20191) and [here](https://stackoverflow.com/questions/10651230/multiple-mono-jit-init-mono-jit-cleanup-issue), I can't say if this is the exact cause. My guess would be something related ti memory permission but from the logs of my JIT code nothing ever touches that the affected region. I tried to reproduce this by replicating the API calls I suspected without mono in the loop but it was to no avail.
+While mono has had reports of problems with the deinit code [here](https://github.com/mono/mono/issues/20191) and [here](https://stackoverflow.com/questions/10651230/multiple-mono-jit-init-mono-jit-cleanup-issue), I can't say if this is the exact cause. My guess would be something related to memory permissions but from the logs of my JIT code nothing ever touches that the affected region. I tried to reproduce this by replicating the API calls I suspected without mono in the loop but it was to no avail.
 
 In the end I decided to add yet another workaround and always terminate the process when the interpreter finishes running, this should avoid hitting seemingly unexplainable crashes.
 
