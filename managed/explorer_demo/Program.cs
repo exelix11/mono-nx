@@ -51,6 +51,9 @@ public static class Program
 
     public static void Main(string[] args)
     {
+        // This is a workaround for an issue in the interpreter builds. It should not affect this specific program but it's left here as a reference. See the writeup for more info.
+		AppContext.SetSwitch("System.Resources.UseSystemResourceKeys", true);
+
         Console.WriteLine("SDL_Init");
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK).AssertZero(SDL_GetError);
 

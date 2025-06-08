@@ -18,6 +18,9 @@ namespace Example
 
 		public static int Main(string[] args)
 		{
+			// This is a workaround for an issue in the interpreter builds. It should not affect this specific program but it's left here as a reference. See the writeup for more info.
+			AppContext.SetSwitch("System.Resources.UseSystemResourceKeys", true);
+
 			if (IsSwitch)
 				console_ensure_init();
 

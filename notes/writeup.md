@@ -212,6 +212,9 @@ Two changes that are worth noting in this post are:
 I should also mention the `System.Resources.UseSystemResourceKeys` AppContext switch. This flag controls whether the corelib uses proper error messages from its resources or the hardcoded resource keys. Initially the `StackTrace` class constructor was causing a fatal exception when accessing these strings via the `SR` class. I couldn't understand why this was happening but reading the code led me to use `AppContext.SetSwitch("System.Resources.UseSystemResourceKeys", true);` as a workaround which fixed my test program.
 Eventually, towards the end of the project I tried again without setting the switch and it was working fine, some change in the build configuration must have fixed the issue without me noticing. When I started working on AOT the issue surfaced again, this time a flag in `ILLink` fixed it.
 
+> [!NOTE]
+> Edit after additional testing, actually in the interpreter builds this issue is fixed only for exceptions coming from the corelib, some more complex programs still exhibit this unrecoverable exception without the `System.Resources.UseSystemResourceKeys` flag. More research is required here.
+
 With all of this out of the way I put together a simple test app for the set of features I cared about, and it worked fine in the emulator.
 
 My enthusiasm was short lived though, as soon as I tried to run it on my console the result was not as good.
@@ -326,8 +329,7 @@ And finally, after much pain and anguish we have real mono running on a real swi
 
 https://github.com/user-attachments/assets/b0d8e9e0-8925-47f9-9039-4b2c9f04b2aa
 
->[!Note]
-> Launching a dll from the hbmenu is something I added much later, it's here only for dramatic effect.
+Launching a dll from the hbmenu is something I added much later, it's here only for dramatic effect.
 
 So why did I try to avoid reserving memory? It was because I was worried it could come back to bite me once multi-threading is set up. The mono docs at `docs/design/mono/web/thread-safety.md` claim that code generation is protected by a mutex, my understanding is that `mono_jit_lock` is used only when code is being emitted but not when such code is being run.
 

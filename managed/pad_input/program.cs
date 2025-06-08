@@ -1,5 +1,8 @@
 using System.Runtime.InteropServices;
 
+// This is a workaround for an issue in the interpreter builds. It should not affect this specific program but it's left here as a reference. See the writeup for more info.
+AppContext.SetSwitch("System.Resources.UseSystemResourceKeys", true);
+
 if (!OperatingSystem.IsOSPlatform("libnx"))
 { 
 	Console.WriteLine("This example is only for mono-nx");
