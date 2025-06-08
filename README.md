@@ -5,11 +5,11 @@ This is an unofficial port of the mono runtime to the switch homebrew toolchain.
 https://github.com/user-attachments/assets/ab57d77b-67ed-4c05-8017-9a1706f8c645
 
 This is a clip of a [C# file explorer](managed/explorer_demo) with a GUI powered by SDL and imgui running on console.
-More clips: [pad_demo](notes/assets/pad_demo.mp4) and [guess_number](notes/assets/number_demo.mp4)
-
-While a few things do work this is only an experiment, there is no support and I don't plan on continuing development or fix bugs. Take this project just as a proof of concept with minimal testing, you probably don't want to use this to actually make homebrew.
+More clips: [pad_demo](https://github.com/user-attachments/assets/ca9f7be8-cdde-4dae-8391-abbc80c1953b) and [guess_number](https://github.com/user-attachments/assets/1588dbc6-5fd3-4991-8f53-dc53a64074a6)
 
 If you're curious about the process of porting mono to a weird platform I documented some of the challenges I faced and my workarounds in this [write-up](notes/writeup.md).
+
+While a few things do work this at the proof-of-concept stage with minimal testing, you probably don't want to use this to actually make homebrew. While I would love to continue working on this project, it requires too much effort for a single person. For the time being I don't plan further development.
 
 ## What works
 
@@ -25,7 +25,7 @@ If you're curious about the process of porting mono to a weird platform I docume
 
 - HTTPS and most of `System.Security` doesn't work because we have no openssl port on switch
 - Arbitrary P/Invoke doesn't work due to the lack of dynamic linking, all native function entrypoints must be defined beforehand and statically linked
-- Any other OS-dependant API that was not mentioned previously will likely not work because it was not explicitly implemented. Examples are `Console.Read`, `Console.Clear`, `Process` and many more.
+- Any other OS-dependant API that was not mentioned previously will likely not work because it was not explicitly implemented. Examples are `Console.Read`, `Console.Clear`, `Process`, `WinForms` and many more.
 
 Also, exiting the interpreter and launching another dll or sometimes homebrew in the same hbmenu session will eventually crash. I'm not sure why this happens, historically mono has had problems [cleaning up resources](https://github.com/mono/mono/issues/20191) but it could also be an issue related to the homebrew environment. I tried to do [some debugging](https://github.com/exelix11/mono-nx/blob/master/notes/writeup.md#the-smoke-test) but ultimately my workaround is to just terminate the process on exit.
 
@@ -49,7 +49,7 @@ You will probably want to setup one of the logging options in the [config.ini](s
 AOT requires [additional steps](notes/aot.md)
 
 > [!IMPORTANT]  
-> Reminder for when you **will** hit things that do not work. **this is an unsupported port, do NOT open issues on the real dotnet/runtime.**. If you want to help document what is broken you can open an issue in this repo, I won't provide support in the form of investigating and fixing unsupported features but I can answer technical questions.
+> Reminder for when you **will** hit things that do not work. **this is an unsupported port, do NOT open issues on the real dotnet/runtime.**. If you want to help document what is broken you can open an issue in this repo, but as of now there is no support.
 
 # Building the runtime
 
