@@ -47,7 +47,15 @@ done
 echo copying outputs
 # Dlls are needed for metadata
 cp output/*.dll romfs/
-cp $ICU_NX_INSTALL_DIR/share/icu/77.1/icudt77l.dat romfs/
+
+if [ -f $ICU_NX_INSTALL_DIR/../icu_trimmed.dat ]; then
+    echo Using trimmed icu data file to save space. This is VERY experimental.
+    echo Last time I tried this it did not work properly. As of now it is disabled in the icu build script. 
+    cp $ICU_NX_INSTALL_DIR/../icu_trimmed.dat romfs/icudt77l.dat
+else
+    echo copying full icu data file
+    cp $ICU_NX_INSTALL_DIR/share/icu/77.1/icudt77l.dat romfs/
+fi
 
 echo Static-linking symbols:
 grep -r "Linking symbol:" mono_aot.log | sed "s/Linking symbol: '\([^']*\)'\./STATIC_MONO_SYM(\1);/"

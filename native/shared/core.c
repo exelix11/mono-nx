@@ -12,9 +12,6 @@ static volatile bool using_sockets = false;
 
 void socket_esnure_init_thread_safe()
 {    
-    if (using_sockets) 
-        return;
-
     pthread_mutex_lock(&sockets_mutex);
     if (using_sockets) {
         pthread_mutex_unlock(&sockets_mutex);

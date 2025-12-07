@@ -45,3 +45,21 @@ sh ../icu/source/configure --disable-renaming --disable-shared --enable-static -
 
 make -j8
 make install
+
+# TODO: Apparently we can build a smaller data file using the dotnet filters like https://github.com/dotnet/icu/blob/dotnet/main/icu-filters/icudt_wasm.json
+# The following is a way to do it, however it doesn't seem to work, getCLDRVersion always fails with missing resources.
+
+# cd ..
+
+# Apparently some needed data is not part of the source code package, so we need to download it separately
+# wget https://github.com/unicode-org/icu/releases/download/release-77-1/icu4c-77_1-data.zip
+# unzip icu4c-77_1-data.zip -d icu/source/
+
+# mkdir trimmed_icu_out
+# mkdir trimmed_icu_tmp
+
+# Collect the data
+# PYTHONPATH=icu/source/python/ LD_LIBRARY_PATH=host_build/lib python3 -m icutools.databuilder --mode=unix-exec --src_dir icu/source/data --filter_file icudt_wasm.json --out_dir trimmed_icu_out --tmp_dir trimmed_icu_tmp --tool_dir host_build/bin
+
+# Build the final package
+# LD_LIBRARY_PATH=host_build/lib host_build/bin/pkgdata -m common -p icu_trimmed -c -O host_build -s trimmed_icu_out -d . trimmed_icu_tmp/icudata.lst
