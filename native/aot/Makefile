@@ -6,8 +6,8 @@ ifeq ($(strip $(DEVKITPRO)),)
 $(error "Please set DEVKITPRO in your environment. export DEVKITPRO=<path to>/devkitpro")
 endif
 
-ifeq ($(strip $(MONO_ROOT)),)
-$(error "Please set MONO_ROOT in your environment.")
+ifeq ($(strip $(MONO_NX_ROOT)),)
+$(error "Please set MONO_NX_ROOT in your environment.")
 endif
 
 ifeq ($(strip $(ICU_NX_INSTALL_DIR)),)
@@ -67,8 +67,8 @@ CFLAGS	:=	-g -Wall -O2 -ffunction-sections \
 			$(ARCH) $(DEFINES)
 
 CFLAGS	+=	$(INCLUDE) -D__SWITCH__ \
-			-I$(MONO_ROOT)/artifacts/bin/mono/libnx.arm64.Debug/include/mono-2.0 \
-			-I$(MONO_ROOT)/src/mono/ \
+			-I$(MONO_NX_ROOT)/artifacts/bin/mono/libnx.arm64.Debug/include/mono-2.0 \
+			-I$(MONO_NX_ROOT)/src/mono/ \
 			-I$(ICU_NX_INSTALL_DIR)/include \
 			-DU_DISABLE_RENAMING=1 
 
@@ -81,18 +81,18 @@ AOT_FILES := $(wildcard $(TOPDIR)/output/*.o)
 
 LIBS	:=  \
 			$(AOT_FILES) \
-			$(MONO_ROOT)/artifacts/bin/native/net9.0-libnx-Debug-arm64/libSystem.IO.Compression.Native.a \
-  			$(MONO_ROOT)/artifacts/bin/native/net9.0-libnx-Debug-arm64/libSystem.Globalization.Native.a \
-			$(MONO_ROOT)/artifacts/bin/native/net9.0-libnx-Debug-arm64/libSystem.Native.a \
+			$(MONO_NX_ROOT)/artifacts/bin/native/net9.0-libnx-Debug-arm64/libSystem.IO.Compression.Native.a \
+  			$(MONO_NX_ROOT)/artifacts/bin/native/net9.0-libnx-Debug-arm64/libSystem.Globalization.Native.a \
+			$(MONO_NX_ROOT)/artifacts/bin/native/net9.0-libnx-Debug-arm64/libSystem.Native.a \
 			$(ICU_NX_INSTALL_DIR)/lib/libicui18n.a \
 			$(ICU_NX_INSTALL_DIR)/lib/libicuuc.a \
 			$(ICU_NX_INSTALL_DIR)/lib/libicudata.a \
-			$(MONO_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmonosgen-2.0.a \
-			$(MONO_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-debugger-stub-static.a \
-			$(MONO_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-diagnostics_tracing-stub-static.a \
-			$(MONO_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-hot_reload-stub-static.a \
-			$(MONO_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-marshal-ilgen-static.a \
-			$(MONO_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/_deps/fetchzlibng-build/libz.a \
+			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmonosgen-2.0.a \
+			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-debugger-stub-static.a \
+			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-diagnostics_tracing-stub-static.a \
+			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-hot_reload-stub-static.a \
+			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-marshal-ilgen-static.a \
+			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/_deps/fetchzlibng-build/libz.a \
 			-pthread -lnx -lm -lstdc++
 
 #---------------------------------------------------------------------------------

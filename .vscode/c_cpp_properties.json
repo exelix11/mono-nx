@@ -10,8 +10,8 @@
                 "${workspaceFolder}/native/shared/",
                 "${workspaceFolder}/native/shared/third_party",
                 "${workspaceFolder}/native/shared/third_party/cimgui",
-                "${workspaceFolder}/dotnet_runtime/artifacts/obj/mono/libnx.arm64.Debug/out/include/mono-2.0",
-                "${workspaceFolder}/dotnet_runtime/src/mono/",
+                "${env:MONO_NX_ROOT}/artifacts/obj/mono/libnx.arm64.Debug/out/include/mono-2.0",
+                "${env:MONO_NX_ROOT}/src/mono/",
                 "${workspaceFolder}/icu/libnx/include"
             ],
             "defines": [

@@ -12,12 +12,12 @@ if [ ! -f $ICU_NX_INSTALL_DIR/lib/libicudata.a ]; then
     exit 1
 fi
 
-if [ ! -d $MONO_ROOT ]; then
+if [ ! -d $MONO_NX_ROOT ]; then
     echo "The mono root is missing, did you clone the repo?"
     exit 1
 fi
 
-cd $MONO_ROOT
+cd $MONO_NX_ROOT
 
 echo building mono interpreter
 
@@ -39,8 +39,8 @@ cd ..
 
 # This just contains the corlib
 mkdir -p sd_files/mono/lib_net9.0
-cp $MONO_ROOT/artifacts/bin/mono/libnx.arm64.Debug/*.dll sd_files/mono/lib_net9.0/
+cp $MONO_NX_ROOT/artifacts/bin/mono/libnx.arm64.Debug/*.dll sd_files/mono/lib_net9.0/
 
 # This contains the rest of the framework
 mkdir -p sd_files/mono/framework_net9.0
-cp $MONO_ROOT/artifacts/bin/runtime/net9.0-libnx-Debug-arm64/*.dll sd_files/mono/framework_net9.0/
+cp $MONO_NX_ROOT/artifacts/bin/runtime/net9.0-libnx-Debug-arm64/*.dll sd_files/mono/framework_net9.0/
