@@ -8,8 +8,9 @@
 
 #define CHECK_LIB_NAME(value, name) \
 do { \
-	if (strcmp(value, LibName_##name) == 0) \
+	if (strcmp(value, LibName_##name) == 0) {\
 		return (void *)LibHandle_##name; \
+	}\
 } while (0)
 
 // Core libraries
@@ -29,6 +30,11 @@ REGISTER_LIBRARY(SDL2_image, "SDL2_image", 0x101)
 
 #if defined(DLSHIM_CIMGUI)
 REGISTER_LIBRARY(Cimgui, "cimgui", 0x102)
+#endif
+
+#if defined(DLSHIM_OPENGL)
+REGISTER_LIBRARY(Egl, "libEGL.dll", 0x103)
+REGISTER_LIBRARY(Glad, "glad", 0x104)
 #endif
 
 void *dlshim_loadLibrary(const char *name, int flags, char **err, void *user_data)
@@ -72,7 +78,8 @@ void *dlshim_getSymbol(void *handle, const char *name, char **err, void *user_da
 #define CHECK_LIB_SYMBOL(libName) \
 	case LibHandle_##libName: \
 		resolvedLibrary = LibName_##libName; \
-		symbol = getsym_##libName(name); 
+		symbol = getsym_##libName(name);  \
+		break;
 
 	if (!handle)
 		return NULL;

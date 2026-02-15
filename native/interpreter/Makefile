@@ -45,23 +45,19 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well.
 #---------------------------------------------------------------------------------
+MONO_NX_USE_CIMGUI 			:=  	0
+MONO_NX_USE_SDL2 			:=  	0
+MONO_NX_USE_OPENGL	 		:=  	1
+
 TARGET		:=	mono_nx
 BUILD		:=	build
 SOURCES		:=	source \
 				../shared \
-				../shared/third_party \
-				../shared/third_party/ini \
-				../shared/third_party/cimgui \
-				../shared/third_party/cimgui/imgui \
-				../shared/third_party/cimgui/imgui/backends \
-				../shared/dl_shim_sdl2 \
-				../shared/dl_shim_sdl2_image \
-				../shared/dl_shim_cimgui \
+				../shared/third_party/ini
 
 DATA		:=	data
 INCLUDES	:=	include \
-				../shared \
-				../shared/third_party/cimgui/imgui 
+				../shared
 
 #ROMFS	:=	romfs
 
@@ -79,10 +75,7 @@ CFLAGS	+=	$(INCLUDE) -D__SWITCH__ \
 			-I/opt/devkitpro/portlibs/switch/include/SDL2/ \
 			-DIMGUI_USER_CONFIG=\"../cimconfig.h\" \
 			-DIMGUI_IMPL_API="extern \"C\" " \
-			-DU_DISABLE_RENAMING=1 \
-			-DDLSHIM_CIMGUI=1 \
-			-DDLSHIM_SDL2=1 \
-			-DDLSHIM_SDL2_IMAGE=1 
+			-DU_DISABLE_RENAMING=1
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=c++17
 
@@ -102,7 +95,6 @@ LIBS	:=  \
 			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-hot_reload-stub-static.a \
 			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-marshal-ilgen-static.a \
 			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/_deps/fetchzlibng-build/libz.a \
-			`$(PREFIX)pkg-config --libs sdl2 SDL2_image` \
 			-pthread -lnx -lm -lstdc++
 
 #---------------------------------------------------------------------------------
@@ -111,6 +103,31 @@ LIBS	:=  \
 #---------------------------------------------------------------------------------
 LIBDIRS	:= $(PORTLIBS) $(LIBNX)
 
+#---------------------------------------------------------------------------------
+# mono nx dl shim options
+# ---------------------------------------------------------------------------------
+
+ifeq ($(MONO_NX_USE_CIMGUI),1)
+	INCLUDES	+=	../shared/third_party/cimgui
+	SOURCES		+=	../shared/third_party/cimgui \
+					../shared/third_party/cimgui/imgui \
+					../shared/third_party/cimgui/imgui/backends \
+					../shared/dl_shim_cimgui
+	CFLAGS		+=	-DDLSHIM_CIMGUI=1
+endif
+
+ifeq ($(MONO_NX_USE_SDL2),1)
+	SOURCES		+=	../shared/dl_shim_sdl2 \
+					../shared/dl_shim_sdl2_image
+	CFLAGS		+=	-DDLSHIM_SDL2=1 -DDLSHIM_SDL2_IMAGE=1
+	LIBS		+=	`$(PREFIX)pkg-config --libs sdl2 SDL2_image`
+endif
+
+ifeq ($(MONO_NX_USE_OPENGL),1)
+	SOURCES		+=	../shared/dl_shim_opengl
+	CFLAGS		+=	-DDLSHIM_OPENGL=1
+	LIBS		+=	-lglad -lEGL -lglapi -ldrm_nouveau
+endif
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
