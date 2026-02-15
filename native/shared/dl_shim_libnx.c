@@ -6,7 +6,7 @@ u32 extensionPadStateSize()
     return sizeof(PadState);
 }
 
-void *getsym_libnx(const char *name)
+void *getsym_Libnx(const char *name)
 {
     SYM_RESOLVE_EXISTING(padConfigureInput);
     SYM_RESOLVE_EXISTING(padUpdate);

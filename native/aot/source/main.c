@@ -30,15 +30,7 @@ int main(int argc, char *argv[])
 
     mono_jit_set_aot_mode(MONO_AOT_MODE_FULL);
 
-    if (g_config.mono_logging)
-    {
-        mono_trace_set_log_handler(on_mono_log, NULL);
-        mono_trace_set_mask_string("all");
-        mono_trace_set_level_string("debug");
-    }
-
-    mono_dl_fallback_register(MonoDlFallback_Load, MonoDlFallback_Symbol, MonoDlFallback_Close, NULL);
-    mono_install_unhandled_exception_hook(Mono_unhandledExceptionHook, NULL);
+    application_configure_mono();
 
     domain = mono_jit_init("embedded_mono");
     if (!domain)

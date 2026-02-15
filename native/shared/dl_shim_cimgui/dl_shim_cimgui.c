@@ -1,16 +1,6 @@
-#include "dl_shim_base.h"
+#include "../dl_shim_base.h"
 
-#ifndef DLSHIM_IMGUI
-
-#pragma message "Imgui P/Invoke bindings are disabled"
-void *getsym_cimgui(const char *name) 
-{
-	return NULL;
-}
-
-#else
-
-void *getsym_cimgui(const char *name)
+void *getsym_Cimgui(const char *name)
 {
 	SYM_RESOLVE(igAcceptDragDropPayload);
 	SYM_RESOLVE(igActivateItem);
@@ -1372,5 +1362,3 @@ void *getsym_cimgui(const char *name)
 	SYM_RESOLVE(ImVector_ImWchar_UnInit);
 	return NULL;
 }
-
-#endif

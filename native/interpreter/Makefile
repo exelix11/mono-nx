@@ -53,7 +53,10 @@ SOURCES		:=	source \
 				../shared/third_party/ini \
 				../shared/third_party/cimgui \
 				../shared/third_party/cimgui/imgui \
-				../shared/third_party/cimgui/imgui/backends
+				../shared/third_party/cimgui/imgui/backends \
+				../shared/dl_shim_sdl2 \
+				../shared/dl_shim_sdl2_image \
+				../shared/dl_shim_cimgui \
 
 DATA		:=	data
 INCLUDES	:=	include \
@@ -77,8 +80,9 @@ CFLAGS	+=	$(INCLUDE) -D__SWITCH__ \
 			-DIMGUI_USER_CONFIG=\"../cimconfig.h\" \
 			-DIMGUI_IMPL_API="extern \"C\" " \
 			-DU_DISABLE_RENAMING=1 \
-			-DDLSHIM_IMGUI=1 \
-			-DDLSHIM_SDL=1
+			-DDLSHIM_CIMGUI=1 \
+			-DDLSHIM_SDL2=1 \
+			-DDLSHIM_SDL2_IMAGE=1 
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=c++17
 

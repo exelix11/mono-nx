@@ -1,40 +1,6 @@
-#include "dl_shim_base.h"
+#include "../dl_shim_base.h"
 
-#ifndef DLSHIM_SDL
-
-#pragma message "SDL2 P/Invoke bindings are disabled"
-void *getsym_SDL2_image(const char *name)
-{
-	return NULL;
-}
-
-void *getsym_sdl2(const char *name)
-{
-	return NULL;
-}
-
-#else
-
-void *getsym_SDL2_image(const char *name)
-{
-	SYM_RESOLVE(IMG_Linked_Version);
-	SYM_RESOLVE(IMG_Init);
-	SYM_RESOLVE(IMG_Quit);
-	SYM_RESOLVE(IMG_Load);
-	SYM_RESOLVE(IMG_Load_RW);
-	SYM_RESOLVE(IMG_LoadTyped_RW);
-	SYM_RESOLVE(IMG_LoadTexture);
-	SYM_RESOLVE(IMG_LoadTexture_RW);
-	SYM_RESOLVE(IMG_LoadTextureTyped_RW);
-	SYM_RESOLVE(IMG_ReadXPMFromArray);
-	SYM_RESOLVE(IMG_SavePNG);
-	SYM_RESOLVE(IMG_SavePNG_RW);
-	SYM_RESOLVE(IMG_SaveJPG);
-	SYM_RESOLVE(IMG_SaveJPG_RW);
-	return NULL;
-}
-
-void *getsym_sdl2(const char *name)
+void *getsym_SDL2(const char *name)
 {
 	SYM_RESOLVE(SDL_ExitProcess);
 	SYM_RESOLVE(SDL_GetPlatform);
@@ -1287,5 +1253,3 @@ void *getsym_sdl2(const char *name)
 	SYM_RESOLVE(SDL_UnloadObject);
 	return NULL;
 }
-
-#endif

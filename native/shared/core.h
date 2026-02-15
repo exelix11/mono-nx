@@ -43,7 +43,12 @@ struct AppConfiguration
 
 extern struct AppConfiguration g_config;
 
+// Loads config
 bool application_initialize(const char* configFile);
+
+// Sets up dlshim and exception hooks
+void application_configure_mono();
+
 void application_terminate();
 
 void application_chdir_to_assembly(const char* path);
@@ -58,9 +63,3 @@ void socket_esnure_init_thread_safe();
 void socket_terminate();
 
 void fatal_error(const char *message);
-
-void on_mono_log(const char *log_domain, const char *log_level, const char *message, mono_bool fatal, void *user_data);
-void *MonoDlFallback_Load(const char *name, int flags, char **err, void *user_data);
-void *MonoDlFallback_Symbol(void *handle, const char *name, char **err, void *user_data);
-void *MonoDlFallback_Close(void *handle, void *user_data);
-void Mono_unhandledExceptionHook(MonoObject *exc, void *user_data);

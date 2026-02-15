@@ -15,7 +15,10 @@
                 "${workspaceFolder}/icu/libnx/include"
             ],
             "defines": [
-                "__SWITCH__=1"
+                "__SWITCH__=1",
+                "DLSHIM_SDL2=1",
+                "DLSHIM_SDL2_IMAGE=1",
+                "DLSHIM_CIMGUI=1"
             ],
             "compilerPath": "/opt/devkitpro/devkitA64/bin/aarch64-none-elf-gcc",
             "cStandard": "c17",

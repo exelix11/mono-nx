@@ -1,8 +1,7 @@
 #include "core.h"
+#include "dl_shim.h"
 #include <unistd.h>
 #include <pthread.h>
-
-static bool logging = false;
 
 static PadState pad;
 static bool using_console = false;
@@ -116,7 +115,7 @@ void fatal_error(const char *message)
 
 void on_mono_log(const char *log_domain, const char *log_level, const char *message, mono_bool fatal, void *user_data)
 {
-    if (logging)
+    if (g_config.mono_logging)
         io_debugf("%s %s %s", log_domain, log_level, message);
 
     if (fatal)
@@ -124,85 +123,6 @@ void on_mono_log(const char *log_domain, const char *log_level, const char *mess
         io_debugf("Fatal error in Mono");
         fatal_error(message);
     }
-}
-
-void *MonoDlFallback_Load(const char *name, int flags, char **err, void *user_data)
-{
-    if (!name)
-        return (void *)LibHandle_Internal;
-
-    if (strcmp(name, "__Internal") == 0)
-        return (void *)LibHandle_Internal;
-
-    if (strcmp(name, "libSystem.Native") == 0)
-        return (void *)LibHandle_SystemNative;
-
-    if (strcmp(name, "libSystem.Globalization.Native") == 0)
-        return (void *)LibHandle_GlobalizationNative;
-
-    if (strcmp(name, "cimgui") == 0)
-        return (void *)LibHandle_cimgui;
-
-    if (strcmp(name, "SDL2") == 0)
-        return (void *)LibHandle_sdl2;
-
-    if (strcmp(name, "SDL2_image") == 0)
-        return (void *)LibHandle_SDL2_image;
-
-    if (strcmp(name, "libnx") == 0)
-        return (void *)LibHandle_libnx;
-
-    if (logging)
-        io_debugf("MonoDlFallback_Load %s library=%s", "unknown library", name);
-
-    return NULL;
-}
-
-void *MonoDlFallback_Symbol(void *handle, const char *name, char **err, void *user_data)
-{
-    void *symbol = NULL;
-    if ((intptr_t)handle == LibHandle_SystemNative)
-        symbol = getsym_SystemNative(name);
-    else if ((intptr_t)handle == LibHandle_GlobalizationNative)
-        symbol = getsym_GlobalizationNative(name);
-    else if ((intptr_t)handle == LibHandle_cimgui)
-        symbol = getsym_cimgui(name);
-    else if ((intptr_t)handle == LibHandle_sdl2)
-        symbol = getsym_sdl2(name);
-    else if ((intptr_t)handle == LibHandle_SDL2_image)
-        symbol = getsym_SDL2_image(name);
-    else if ((intptr_t)handle == LibHandle_libnx)
-        symbol = getsym_libnx(name);
-    else if ((intptr_t)handle == LibHandle_Internal)
-    {
-        // Custom extensions
-        if (strcmp(name, "console_ensure_init") == 0)
-            symbol = (void *)console_ensure_init;
-        else if (strcmp(name, "console_dispose") == 0)
-            symbol = (void *)console_dispose;
-        else if (strcmp(name, "console_update") == 0)
-            symbol = (void *)console_update;
-    }
-    else
-    {
-        if (logging)
-            io_debugf("MonoDlFallback_Symbol %s handle=%p symbol=%s", "invalid handle", handle, name);
-
-        return NULL;
-    }
-
-    if (symbol)
-        return symbol;
-
-    if (logging)
-        io_debugf("MonoDlFallback_Symbol %s handle=%p symbol=%s", "invalid symbol", handle, name);
-
-    return NULL;
-}
-
-void *MonoDlFallback_Close(void *handle, void *user_data)
-{
-    return NULL;
 }
 
 void Mono_unhandledExceptionHook(MonoObject *exc, void *user_data)
@@ -284,8 +204,6 @@ bool application_initialize(const char* configFile)
         return false;
     }
 
-    logging = g_config.mono_logging;
-
     if (g_config.force_console_init)
         console_ensure_init();
     
@@ -333,6 +251,19 @@ bool application_initialize(const char* configFile)
     mono_set_dirs(g_config.assembly_dir, g_config.config_dir);   
 
     return true;
+}
+
+void application_configure_mono()
+{
+    if (g_config.mono_logging)
+    {
+        mono_trace_set_log_handler(on_mono_log, NULL);
+        mono_trace_set_mask_string("all");
+        mono_trace_set_level_string("debug");
+    }
+
+    mono_dl_fallback_register(dlshim_loadLibrary, dlshim_getSymbol, dlshim_closeLibrary, NULL);
+    mono_install_unhandled_exception_hook(Mono_unhandledExceptionHook, NULL);
 }
 
 // Internal libnx symbol
