@@ -17,7 +17,7 @@ if [ ! -d $MONO_NX_ROOT ]; then
     exit 1
 fi
 
-cd $MONO_NX_ROOT
+pushd $MONO_NX_ROOT
 
 echo building mono interpreter
 
@@ -35,7 +35,7 @@ export ROOTFS_DIR=
 ./build.sh -s mono /p:AotHostArchitecture=x64 /p:AotHostOS=linux /p:MonoCrossAOTTargetOS=libnx /p:SkipMonoCrossJitConfigure=true /p:BuildMonoAOTCrossCompilerOnly=true /p:BuildMonoAOTCrossCompiler=true
 
 # If everything went well, copy the output libraries to the sd output folder
-cd ..
+popd
 
 # This just contains the corlib
 mkdir -p sd_files/mono/lib_net9.0

@@ -1,0 +1,3 @@
+[submodule "managed/test_runner/xharness"]
+	path = managed/test_runner/xharness
+	url = https://github.com/dotnet/xharness.git
