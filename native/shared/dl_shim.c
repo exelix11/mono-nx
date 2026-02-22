@@ -18,6 +18,7 @@ REGISTER_LIBRARY(Libnx, "libnx", 0x01)
 REGISTER_LIBRARY(Internal, "__Internal", 0x02)
 REGISTER_LIBRARY(SystemNative, "libSystem.Native", 0x03)
 REGISTER_LIBRARY(GlobalizationNative, "libSystem.Globalization.Native", 0x04)
+REGISTER_LIBRARY(CompressionNative, "libSystem.IO.Compression.Native", 0x05)
 
 // Optional libraries
 #if defined(DLSHIM_SDL2)
@@ -46,6 +47,7 @@ void *dlshim_loadLibrary(const char *name, int flags, char **err, void *user_dat
     CHECK_LIB_NAME(name, Internal);
     CHECK_LIB_NAME(name, SystemNative);
     CHECK_LIB_NAME(name, GlobalizationNative);
+    CHECK_LIB_NAME(name, CompressionNative);
 
     #if defined(DLSHIM_SDL2)
 	CHECK_LIB_NAME(name, SDL2);
@@ -95,6 +97,7 @@ void *dlshim_getSymbol(void *handle, const char *name, char **err, void *user_da
 		CHECK_LIB_SYMBOL(Internal)
 		CHECK_LIB_SYMBOL(SystemNative)
 		CHECK_LIB_SYMBOL(GlobalizationNative)
+		CHECK_LIB_SYMBOL(CompressionNative)
 
 	#if defined(DLSHIM_SDL2)
 		CHECK_LIB_SYMBOL(SDL2)

@@ -302,3 +302,26 @@ void *getsym_GlobalizationNative(const char *name)
     SYM_RESOLVE(GlobalizationNative_GetTimeZoneDisplayName);
     return NULL;
 }
+
+void *getsym_CompressionNative(const char *name){
+    SYM_RESOLVE(BrotliDecoderCreateInstance);
+    SYM_RESOLVE(BrotliDecoderDecompress);
+    SYM_RESOLVE(BrotliDecoderDecompressStream);
+    SYM_RESOLVE(BrotliDecoderDestroyInstance);
+    SYM_RESOLVE(BrotliDecoderIsFinished);
+    SYM_RESOLVE(BrotliEncoderCompress);
+    SYM_RESOLVE(BrotliEncoderCompressStream);
+    SYM_RESOLVE(BrotliEncoderCreateInstance);
+    SYM_RESOLVE(BrotliEncoderDestroyInstance);
+    SYM_RESOLVE(BrotliEncoderHasMoreOutput);
+    SYM_RESOLVE(BrotliEncoderSetParameter);
+    SYM_RESOLVE(CompressionNative_Crc32);
+    SYM_RESOLVE(CompressionNative_Deflate);
+    SYM_RESOLVE(CompressionNative_DeflateEnd);
+    SYM_RESOLVE(CompressionNative_DeflateInit2_);
+    SYM_RESOLVE(CompressionNative_Inflate);
+    SYM_RESOLVE(CompressionNative_InflateEnd);
+    SYM_RESOLVE(CompressionNative_InflateInit2_);
+    return NULL;
+}
+
