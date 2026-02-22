@@ -95,7 +95,9 @@ LIBS	:=  \
 			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-hot_reload-stub-static.a \
 			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/out/lib/libmono-component-marshal-ilgen-static.a \
 			$(MONO_NX_ROOT)/artifacts/obj/mono/libnx.arm64.Debug/_deps/fetchzlibng-build/libz.a \
-			-pthread -lnx -lm -lstdc++
+			-pthread 
+
+# Other libs like -lnx are added at the end due to the order of linking
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -128,6 +130,9 @@ ifeq ($(MONO_NX_USE_OPENGL),1)
 	CFLAGS		+=	-DDLSHIM_OPENGL=1
 	LIBS		+=	-lglad -lEGL -lglapi -ldrm_nouveau
 endif
+
+# These need to be at the end
+LIBS	+=	-lnx -lm -lstdc++
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional

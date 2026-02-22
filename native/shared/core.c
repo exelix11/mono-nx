@@ -115,7 +115,7 @@ void fatal_error(const char *message)
 
 void on_mono_log(const char *log_domain, const char *log_level, const char *message, mono_bool fatal, void *user_data)
 {
-    if (g_config.mono_logging)
+    if (g_config.mono_runtime_logging)
         io_debugf("%s %s %s", log_domain, log_level, message);
 
     if (fatal)
@@ -163,8 +163,10 @@ static int handle_ini_line(void *user, const char *section, const char *name, co
 
 #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
 
+    if (MATCH("mono", "runtime_logging"))
+        pconfig->mono_runtime_logging = (strcmp(value, "true") == 0);
     if (MATCH("mono", "logging"))
-        pconfig->mono_logging = (strcmp(value, "true") == 0);
+        pconfig->mononx_logging = (strcmp(value, "true") == 0);
     else if (MATCH("mono", "icu"))
         pconfig->icudata_path = inf_dup_unquote(value);
     else if (MATCH("mono", "assembly_dir"))
@@ -204,6 +206,9 @@ bool application_initialize(const char* configFile)
         return false;
     }
 
+    if (g_config.mono_runtime_logging)
+        g_config.mononx_logging = true; // mononx_logging implies mono_runtime_logging
+
     if (g_config.force_console_init)
         console_ensure_init();
     
@@ -242,7 +247,7 @@ bool application_initialize(const char* configFile)
         return false;
     }
 
-    if (!io_init_libicu(g_config.icudata_path, g_config.mono_logging))
+    if (!io_init_libicu(g_config.icudata_path, g_config.mononx_logging))
     {
         fatal_error("Libicu init failed");
         return false;
@@ -255,7 +260,7 @@ bool application_initialize(const char* configFile)
 
 void application_configure_mono()
 {
-    if (g_config.mono_logging)
+    if (g_config.mono_runtime_logging)
     {
         mono_trace_set_log_handler(on_mono_log, NULL);
         mono_trace_set_mask_string("all");

@@ -59,7 +59,12 @@ void *dlshim_loadLibrary(const char *name, int flags, char **err, void *user_dat
 	CHECK_LIB_NAME(name, Cimgui);
 	#endif	
 
-	if (g_config.mono_logging)
+	#if defined(DLSHIM_OPENGL)
+	CHECK_LIB_NAME(name, Egl);
+	CHECK_LIB_NAME(name, Glad);
+	#endif
+
+	if (g_config.mononx_logging)
     	io_debugf("dlshim_loadLibrary %s library=%s", "unknown library", name);
 
     return NULL;
@@ -102,12 +107,21 @@ void *dlshim_getSymbol(void *handle, const char *name, char **err, void *user_da
 	#if defined(DLSHIM_CIMGUI)
 		CHECK_LIB_SYMBOL(Cimgui)
 	#endif
+
+	#if defined(DLSHIM_OPENGL)
+		CHECK_LIB_SYMBOL(Egl)
+		CHECK_LIB_SYMBOL(Glad)
+	#endif
 	}
 
-    if (symbol)
-        return symbol;
+    if (symbol) {
+		if (g_config.mononx_logging)
+        	io_debugf("dlshim_getSymbol resolved: handle=%p lib=%s symbol=%s", handle, resolvedLibrary, name);
 
-    if (g_config.mono_logging)
+        return symbol;
+	}
+
+    if (g_config.mononx_logging)
         io_debugf("dlshim_getSymbol error: handle=%p lib=%s symbol=%s", handle, resolvedLibrary, name);
 
     return NULL;

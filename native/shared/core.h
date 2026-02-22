@@ -27,7 +27,9 @@
 
 struct AppConfiguration
 {
-    bool mono_logging;
+    bool mono_runtime_logging;
+    bool mononx_logging;
+
     char *icudata_path;
     char *assembly_dir;
     char *config_dir;
