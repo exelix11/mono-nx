@@ -64,19 +64,8 @@ int io_init_libicu(const char* icudata_path, bool log)
     }
 
     // Verify ICU is working
-    const char *version = ucnv_getDefaultName();
-    if (log) io_debugf("ICU initialized successfully. Default converter: %s\n", version);
-
-    UVersionInfo cldrVersion;
-    ulocdata_getCLDRVersion(cldrVersion, &status);
-    if (U_FAILURE(status))
-    {
-        if (log) io_debugf("Failed to get CLDR version: %s\n", u_errorName(status));
-        return 0;
-    }
-
-    if (log) io_debugf("CLDR version: %d.%d.%d.%d\n",
-           cldrVersion[0], cldrVersion[1], cldrVersion[2], cldrVersion[3]);
+    const char *charset = ucnv_getDefaultName();
+    if (log) io_debugf("ICU initialized successfully. Default converter: %s\n", charset);
 
     return 1;
 }

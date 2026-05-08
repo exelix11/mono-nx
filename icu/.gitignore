@@ -3,4 +3,7 @@ host_build/
 nx_build/
 libnx/
 
+trimmed_icu_out/
+trimmed_icu_tmp/
+
 *.tgz
