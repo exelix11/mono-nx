@@ -64,8 +64,25 @@ int io_init_libicu(const char* icudata_path, bool log)
     }
 
     // Verify ICU is working
-    const char *charset = ucnv_getDefaultName();
-    if (log) io_debugf("ICU initialized successfully. Default converter: %s\n", charset);
+    const char *version = ucnv_getDefaultName();
+    if (log) io_debugf("ICU initialized successfully. Default converter: %s\n", version);
+
+    // This check in particular is very convenient to verify that everything is loaded when using trimmed data files
+    // Previously without it this function would pass but then .NET would fail due to missing data
+    UVersionInfo cldrVersion;
+    ulocdata_getCLDRVersion(cldrVersion, &status);
+    if (U_FAILURE(status))
+    {
+        if (log) 
+            io_debugf("Failed to get CLDR version: %s\n", u_errorName(status));
+        
+        // Ignore initialization errors in case we're running in invariant mode
+        if (!getenv("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT"))
+            return 0;
+    }
+
+    if (log) io_debugf("CLDR version: %d.%d.%d.%d\n",
+           cldrVersion[0], cldrVersion[1], cldrVersion[2], cldrVersion[3]);
 
     return 1;
 }

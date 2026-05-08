@@ -2,6 +2,9 @@
 
 int main(int argc, char *argv[])
 {
+    // Needed when using minimal ICU data to reduce the size of the binary.
+    //setenv("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT", "1", 1);
+
     if (!application_initialize(CONFIG_INI_PATH))
         return 1;
 

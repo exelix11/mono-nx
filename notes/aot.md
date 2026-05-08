@@ -13,6 +13,6 @@ Note that while this does compile the IL code to native code the object files wi
 
 With this process even a simple hello world produces a huge nro of around 60MB. Half of that is caused by the icu data file in the romfs, the framework dlls take around 4MB and the rest is code.
 
-We could save a lot of memory by compressing or trimming the icu file. There is an initial attempt in the icu build script however it doesn't seem to work.
+It is possible to save a lot of memory by stripping the icu data file and using the invariant culture, in early tests this seems to work by calling setenv(DOTNET_SYSTEM_GLOBALIZATION_INVARIANT, 1) before initializing mono. The icu build script compiles a 2MB trimmed data file but it is currently not copied automatically by the build scripts since it needs more testing.
 
 We should also be using mono compiler's `direct-pinvoke` option to produce direct references to the System.Native functions, this would allow us to scrap the fake dynamic loader and should let the linker trim away all the unneeded code. This is currently not done because some framework libraries will pull in symbols that are not built in the switch port and fail to link, they can probably be stubbed without consequences but I did not look into it.

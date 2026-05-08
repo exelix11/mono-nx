@@ -48,7 +48,7 @@ make install
 
 # To reduce size in AOT builds we can build a trimmed version of the data, see for example
 # https://github.com/dotnet/icu/blob/dotnet/main/icu-filters/icudt_wasm.json
-# There is an additional example in english_only.json
+# I don't know what options we actually need. In practice with this we need DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
 cd ..
 
@@ -56,6 +56,7 @@ cd ..
 wget https://github.com/unicode-org/icu/releases/download/release-77-1/icu4c-77_1-data.zip
 unzip icu4c-77_1-data.zip -d icu/source/
 
+rm -rf trimmed_icu_out trimmed_icu_tmp
 mkdir trimmed_icu_out trimmed_icu_tmp
 
 # Collect the data

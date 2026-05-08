@@ -47,7 +47,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 MONO_NX_USE_CIMGUI 			:=  	0
 MONO_NX_USE_SDL2 			:=  	0
-MONO_NX_USE_OPENGL	 		:=  	1
+MONO_NX_USE_OPENGL	 		:=  	0
 
 TARGET		:=	mono_nx
 BUILD		:=	build

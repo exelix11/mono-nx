@@ -8,6 +8,9 @@
 
 int main(int argc, char *argv[])
 {
+    // Needed when using minimal ICU data to reduce the size of the binary.
+    //setenv("DOTNET_SYSTEM_GLOBALIZATION_INVARIANT", "1", 1);
+    
     romfsInit();
 
     // Mono doesn't like : in paths, we must cd to the romfs to trick it into loading the dll files from it
