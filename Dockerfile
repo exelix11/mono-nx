@@ -1,4 +1,5 @@
-FROM devkitpro/devkita64:latest
+# We pin the toolchain version for reproducibility but note that devkitpro/devkita64:latest should work fine
+FROM devkitpro/devkita64:20260219
 
 # This dockerfile can be used to build mono. It is based on the official devkita64 dockerfile with the additional build dependencies needed by dotnet
 

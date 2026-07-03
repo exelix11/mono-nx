@@ -2,6 +2,17 @@
 
 set -e
 
+if ! which dotnet >/dev/null 2>&1; then
+    # docker
+    if [ -e ~/.dotnet/dotnet ]; then
+        export DOTNET_ROOT=~/.dotnet
+        export PATH=$PATH:$DOTNET_ROOT
+    else
+        echo "dotnet was not found"
+        exit 1
+    fi
+fi
+
 if [ -d output ]; then
     rm -rf output/
 fi

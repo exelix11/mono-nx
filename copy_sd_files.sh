@@ -26,3 +26,6 @@ cp managed/explorer_demo/bin/Debug/net9.0/OpenSans-Regular.ttf sd_files/switch/e
 if [ -f native/aot/aot_example.nro ]; then
     cp native/aot/aot_example.nro sd_files/switch/
 fi
+
+# Prepare the release
+(cd sd_files && zip -r -9 ../sd_files.zip .)

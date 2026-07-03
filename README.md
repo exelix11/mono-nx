@@ -70,7 +70,7 @@ First you will need to build icu, mono and the framework libraries. This is need
 3) Build libicu with `cd icu && ./build_icu.sh` 
 4) Clone the `libnx` branch from [my fork of the dotnet/runtime](https://github.com/exelix11/dotnet_runtime/tree/libnx) repo `git clone --depth=1 -b libnx https://github.com/exelix11/dotnet_runtime.git`
 4) Build mono with `./build_mono.sh` 
-    - Fix all the inevitable dependency errors that appear and try again until it works
+    - If you're not using the docker container, fix all the inevitable dependency errors that appear and try again until it works
     - You can clean the state of the dotnet build system using `cd dotnet_runtime && ./buld.sh --clean`
 
 If you want to modify mono or the runtime you should check out the build steps in `build_mono.sh` and only build the subsets you're working on.
