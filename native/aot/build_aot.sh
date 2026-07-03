@@ -6,18 +6,6 @@ if [ -d output ]; then
     rm -rf output/
 fi
 
-
-if [ ! -e dotnet ]; then
-    # docker
-    if [ -e ~/.dotnet/dotnet ]; then
-        export DOTNET_ROOT=~/.dotnet
-        export PATH=$PATH:$DOTNET_ROOT
-    else
-        echo "dotnet was not found"
-        exit 1
-    fi
-fi
-
 echo Building the project...
 dotnet build managed/program.csproj 
 
@@ -41,6 +29,7 @@ export PATH=$PATH:$DEVKITPRO/devkitA64/bin/
 echo "build log" > mono_aot.log
 
 for file in output/*.dll; do
+    # TODO: try the direct-pinvoke option here to reduce the need for the dlshim
     $MONO_COMPILER --path=output/ --aot=full,static,tool-prefix=aarch64-none-elf- $file >> mono_aot.log
 done
 

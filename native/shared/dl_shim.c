@@ -20,7 +20,8 @@ REGISTER_LIBRARY(SystemNative, "libSystem.Native", 0x03)
 REGISTER_LIBRARY(GlobalizationNative, "libSystem.Globalization.Native", 0x04)
 REGISTER_LIBRARY(CompressionNative, "libSystem.IO.Compression.Native", 0x05)
 
-// Optional libraries
+// Optional libraries.
+// Don't forget to also register them in the LoadLibrary and GetSymbol functions below, otherwise they won't be found.
 #if defined(DLSHIM_SDL2)
 REGISTER_LIBRARY(SDL2, "SDL2", 0x100)
 #endif
@@ -36,6 +37,10 @@ REGISTER_LIBRARY(Cimgui, "cimgui", 0x102)
 #if defined(DLSHIM_OPENGL)
 REGISTER_LIBRARY(Egl, "libEGL.dll", 0x103)
 REGISTER_LIBRARY(Glad, "glad", 0x104)
+#endif
+
+#if defined(DLSHIM_OPENAL)
+REGISTER_LIBRARY(OpenAl, "openal32.dll", 0x105)
 #endif
 
 void *dlshim_loadLibrary(const char *name, int flags, char **err, void *user_data)
@@ -65,6 +70,10 @@ void *dlshim_loadLibrary(const char *name, int flags, char **err, void *user_dat
 	CHECK_LIB_NAME(name, Egl);
 	CHECK_LIB_NAME(name, Glad);
 	#endif
+	
+	#if defined(DLSHIM_OPENAL)
+	CHECK_LIB_NAME(name, OpenAl);
+	#endif	
 
 	if (g_config.mononx_logging)
     	io_debugf("dlshim_loadLibrary %s library=%s", "unknown library", name);
@@ -114,6 +123,10 @@ void *dlshim_getSymbol(void *handle, const char *name, char **err, void *user_da
 	#if defined(DLSHIM_OPENGL)
 		CHECK_LIB_SYMBOL(Egl)
 		CHECK_LIB_SYMBOL(Glad)
+	#endif
+
+	#if defined(DLSHIM_OPENAL)
+		CHECK_LIB_SYMBOL(OpenAl)
 	#endif
 	}
 

@@ -45,9 +45,10 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well.
 #---------------------------------------------------------------------------------
-MONO_NX_USE_CIMGUI 			:=  	0
-MONO_NX_USE_SDL2 			:=  	0
+MONO_NX_USE_CIMGUI 			:=  	1
+MONO_NX_USE_SDL2 			:=  	1
 MONO_NX_USE_OPENGL	 		:=  	0
+MONO_NX_USE_OPENAL	 		:=  	0
 
 TARGET		:=	mono_nx
 BUILD		:=	build
@@ -129,6 +130,12 @@ ifeq ($(MONO_NX_USE_OPENGL),1)
 	SOURCES		+=	../shared/dl_shim_opengl
 	CFLAGS		+=	-DDLSHIM_OPENGL=1
 	LIBS		+=	-lglad -lEGL -lglapi -ldrm_nouveau
+endif
+
+ifeq ($(MONO_NX_USE_OPENAL),1)
+	SOURCES		+=	../shared/dl_shim_openal
+	CFLAGS		+=	-DDLSHIM_OPENAL=1
+	LIBS		+=	`$(PREFIX)pkg-config --libs openal sdl2`
 endif
 
 # These need to be at the end
