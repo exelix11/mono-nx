@@ -48,19 +48,21 @@ make install
 
 # To reduce size in AOT builds we can build a trimmed version of the data, see for example
 # https://github.com/dotnet/icu/blob/dotnet/main/icu-filters/icudt_wasm.json
-# I don't know what options we actually need. In practice with this we need DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 
-cd ..
+# I don't know what options we actually need. In practice with this we need DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 and it's barely tested.
+# Here are the build steps I used:
+
+# cd ..
 
 # Additional data needs to be downloaded separately
-wget https://github.com/unicode-org/icu/releases/download/release-77-1/icu4c-77_1-data.zip
-unzip icu4c-77_1-data.zip -d icu/source/
+# wget https://github.com/unicode-org/icu/releases/download/release-77-1/icu4c-77_1-data.zip
+# unzip icu4c-77_1-data.zip -d icu/source/
 
-rm -rf trimmed_icu_out trimmed_icu_tmp
-mkdir trimmed_icu_out trimmed_icu_tmp
+# rm -rf trimmed_icu_out trimmed_icu_tmp
+# mkdir trimmed_icu_out trimmed_icu_tmp
 
 # Collect the data
-PYTHONPATH=icu/source/python/ LD_LIBRARY_PATH=host_build/lib python3 -m icutools.databuilder --mode=unix-exec --src_dir icu/source/data --filter_file icudt_wasm.json --out_dir trimmed_icu_out --tmp_dir trimmed_icu_tmp --tool_dir host_build/bin
+# PYTHONPATH=icu/source/python/ LD_LIBRARY_PATH=host_build/lib python3 -m icutools.databuilder --mode=unix-exec --src_dir icu/source/data --filter_file icudt_wasm.json --out_dir trimmed_icu_out --tmp_dir trimmed_icu_tmp --tool_dir host_build/bin
 
 # Build the final package
-LD_LIBRARY_PATH=host_build/lib host_build/bin/pkgdata -m common -p icu_trimmed -c -O host_build -s trimmed_icu_out -d . trimmed_icu_tmp/icudata.lst
+# LD_LIBRARY_PATH=host_build/lib host_build/bin/pkgdata -m common -p icu_trimmed -c -O host_build -s trimmed_icu_out -d . trimmed_icu_tmp/icudata.lst
