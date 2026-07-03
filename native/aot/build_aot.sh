@@ -26,8 +26,8 @@ ILLINK=$MONO_NX_ROOT/artifacts/bin/Mono.Linker/Debug/net9.0/illink.dll
 ILLINK_CFG=$MONO_NX_ROOT/src/mono/System.Private.CoreLib/src/ILLink/ILLink.Descriptors.xml
 ILLINK_CFG1=$MONO_NX_ROOT/src/mono/System.Private.CoreLib/src/ILLink/ILLink.LinkAttributes.xml
 
-LIB_ROOT=$BUILT_SD_ROOT/lib_net9.0/
-FRAMEWORK_ROOT=$BUILT_SD_ROOT/framework_net9.0/
+LIB_ROOT=$MONO_NX_ROOT/artifacts/bin/mono/libnx.arm64.Debug/
+FRAMEWORK_ROOT=$MONO_NX_ROOT/artifacts/bin/runtime/net9.0-libnx-Debug-arm64/
 
 dotnet $ILLINK -x $ILLINK_CFG -x $ILLINK_CFG1 --feature System.Resources.UseSystemResourceKeys true -d $LIB_ROOT -d $FRAMEWORK_ROOT --trim-mode link -a managed/bin/Debug/net9.0/program.dll
 
