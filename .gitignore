@@ -1,5 +1,6 @@
 test/
 dotnet_runtime/
+sdk_build/
 
 sd_files/mono/framework_net9.0/
 sd_files/mono/lib_net9.0/
