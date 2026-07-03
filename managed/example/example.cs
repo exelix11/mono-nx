@@ -51,7 +51,6 @@ namespace Example
 			catch (Exception ex)
 			{
 				Console.WriteLine($"Caught exception: {ex}");
-				return 1;
 			}
 
 			Console.WriteLine("Closing in 10 seconds");
