@@ -20,3 +20,5 @@ sd_files/switch/
 *.o
 obj/
 bin/
+
+!native/aot/managed/guess_number.exe

@@ -111,7 +111,8 @@ LIBDIRS	:= $(PORTLIBS) $(LIBNX)
 # ---------------------------------------------------------------------------------
 
 ifeq ($(MONO_NX_USE_CIMGUI),1)
-	INCLUDES	+=	../shared/third_party/cimgui
+	INCLUDES	+=	../shared/third_party/cimgui \
+					../shared/third_party/cimgui/imgui
 	SOURCES		+=	../shared/third_party/cimgui \
 					../shared/third_party/cimgui/imgui \
 					../shared/third_party/cimgui/imgui/backends \

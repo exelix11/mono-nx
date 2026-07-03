@@ -9,7 +9,7 @@ More clips: [pad_demo](https://github.com/user-attachments/assets/ca9f7be8-cdde-
 
 If you're curious about the process of porting mono to a weird platform I documented some of the challenges I faced and my workarounds in this [write-up](notes/writeup.md).
 
-While a few things do work this at the proof-of-concept stage with minimal testing, you probably don't want to use this to actually make homebrew. While I would love to continue working on this project, it requires too much effort for a single person. For the time being I don't plan further development.
+While a few things do work this at the proof-of-concept stage with minimal testing, you probably don't want to use this to actually make homebrew. While I would love to continue working on this project, it requires too much effort for a single person. For the time being I don't plan active development.
 
 ## What works
 
@@ -20,6 +20,7 @@ While a few things do work this at the proof-of-concept stage with minimal testi
 - Sockets and http-only support for `HttpClient`
 - .NET wrappers for SDL2 and [dear imgui](https://github.com/ocornut/imgui) which are included as static libraries
 - The interpreter seems rather stable even when running more complex programs, I did not test the AOT builds as much
+- Unit tests with XHarness (some dotnet repo tests are even passing!)
 
 ## What does not work
 

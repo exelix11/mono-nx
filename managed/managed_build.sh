@@ -2,7 +2,7 @@
 
 set -e
 
-if [ ! -e dotnet ]; then
+if ! which dotnet >/dev/null 2>&1; then
     # docker
     if [ -e ~/.dotnet/dotnet ]; then
         export DOTNET_ROOT=~/.dotnet

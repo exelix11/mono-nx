@@ -15,12 +15,14 @@ mkdir -p sd_files/switch/
 cp managed/pad_input/bin/Debug/net9.0/pad_input.dll sd_files/switch/
 cp managed/example/bin/Debug/net9.0/example.dll sd_files/switch/
 
+# We commit this binary file in the repo cause there is no way to build it on linux but it's one of the demos that can be run by mono-nx
+cp native/aot/managed/guess_number.exe sd_files/switch/
+
 mkdir -p sd_files/switch/explorer_demo/
 cp managed/explorer_demo/bin/Debug/net9.0/explorer_demo.dll sd_files/switch/explorer_demo/
 cp managed/explorer_demo/bin/Debug/net9.0/OpenSans-Regular.ttf sd_files/switch/explorer_demo/
 
 # Copy the aot demo if it has been built
-
 if [ -f native/aot/aot_example.nro ]; then
     cp native/aot/aot_example.nro sd_files/switch/
 fi
