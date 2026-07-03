@@ -3,8 +3,14 @@
 set -e 
 
 # Copy the icu data file to the sd card files
-mkdir -p ../sd_files/mono/etc/
+mkdir -p sd_files/mono/etc/
 cp $ICU_NX_INSTALL_DIR/share/icu/77.1/icudt77l.dat  sd_files/mono/etc/
+
+# Copy the dotnet runtime dlls
+mkdir -p sd_files/mono/lib_net9.0
+mkdir -p sd_files/mono/framework_net9.0
+cp $MONO_NX_ROOT/artifacts/bin/mono/libnx.arm64.Debug/*.dll sd_files/mono/lib_net9.0/
+cp $MONO_NX_ROOT/artifacts/bin/runtime/net9.0-libnx-Debug-arm64/*.dll sd_files/mono/framework_net9.0/
 
 # Copy mono and the fallback dll
 cp native/interpreter/mono_nx.nro sd_files/mono/
