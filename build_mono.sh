@@ -24,6 +24,9 @@ echo building mono interpreter
 export ROOTFS_DIR=$DEVKITPRO
 ./build.sh --subset mono.runtime+mono.corelib+libs.native+libs.sfx --cross -a arm64 --os libnx
 
+# Example: build just the Crypto library. Note that this requires an absolute path.
+# ./build.sh --cross -a arm64 --os libnx --projects $MONO_NX_ROOT/src/libraries/System.Security.Cryptography/System.Security.Cryptography.sln
+
 echo building target AOT offsets
 
 ./build.sh -s mono.aotcross /p:MonoGenerateOffsetsOSGroups=libnx
