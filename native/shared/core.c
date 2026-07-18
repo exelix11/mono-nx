@@ -278,10 +278,12 @@ void application_terminate()
 {
     io_debugf("Terminating application");
 
-    // This symbol is defined in mono and is used as a workaround to force release all the kernel JIT objects
-    extern void nx_jit_force_dispose(void);
+    // These symbols are defined in mono and needed to clean up our hacks needed to get it to work on switch.
+    extern void mono_nx_jit_force_dispose(void);
+    mono_nx_jit_force_dispose();
 
-    nx_jit_force_dispose();
+    extern void mono_nx_fakemmap_release(void);
+    mono_nx_fakemmap_release();
     
     csrngExit();
     
