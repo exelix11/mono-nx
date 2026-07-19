@@ -195,6 +195,9 @@ static int handle_ini_line(void *user, const char *section, const char *name, co
     return 1;
 }
 
+// heap.c
+extern void heap_debug();
+
 bool application_initialize(const char* configFile)
 {
     memset(&g_config, 0, sizeof(struct AppConfiguration));
@@ -240,6 +243,8 @@ bool application_initialize(const char* configFile)
             return false;
         }
     }
+
+    heap_debug();
 
     if (!g_config.config_dir || !g_config.assembly_dir || !g_config.icudata_path)
     {
