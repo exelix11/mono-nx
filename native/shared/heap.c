@@ -62,6 +62,6 @@ void __libnx_initheap(void)
     fake_heap_start = (char*)libnx_heap_start;
     fake_heap_end   = (char*)libnx_heap_end;
 
-	// Heap must be ready by the time we call this since it allocates the pagetable dynamically
+    // Note that even tho we set the pointers newlib's heap is still not ready cause libnx hasn't called the thread init function yet. We can't use malloc yet.
 	mono_nx_fakemmap_init(mono_heap_start, mono_heap_end);
 }
